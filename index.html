@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমাদের শপ - প্রফেশনাল ইউজার প্যানেল</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #5f6368;
+            --success: #34a853;
+            --danger: #d93025;
+            --warning: #fbbc04;
+            --bg: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        
+        h3 { color: var(--primary); margin-top: 0; font-size: 20px; text-align: center; }
+        h4 { margin: 10px 0; font-size: 16px; }
+        
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 8px rgba(26,115,232,0.1); }
+        
+        button { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; display: block; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .product-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .p-card { background: white; padding: 10px; border-radius: 12px; border: 1px solid #eee; text-align: center; transition: 0.3s; }
+        .p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; }
+        .price-tag { color: var(--danger); font-weight: bold; font-size: 18px; margin: 5px 0; display: block; }
+        .old-price { text-decoration: line-through; color: #888; font-size: 13px; margin-right: 5px; }
+        
+        .status-tag { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: white; }
+        
+        #checkoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; padding:15px; box-sizing:border-box; overflow-y:auto; z-index:1000; }
+        
+        .desc-view { text-align: left; background: #f1f3f4; padding: 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; border-left: 4px solid var(--primary); margin: 10px 0; }
+        .size-btn { width: auto; padding: 8px 18px; margin: 4px; background: white; border: 1.5px solid #ddd; border-radius: 8px; cursor: pointer; }
+        .size-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .pay-method { display: flex; gap: 12px; margin: 15px 0; }
+        .pay-method div { flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; font-weight: bold; text-align: center; background: #fafafa; }
+        .pay-method div.active { border-color: var(--primary); background: #e8f0fe; color: var(--primary); }
+        
+        .color-img-opt { width: 70px; height: 70px; object-fit: cover; border: 3px solid #eee; border-radius: 10px; cursor: pointer; margin: 5px; }
+        .color-img-opt.active { border-color: var(--primary); transform: scale(1.05); }
+
+        #numDisplay { background: #fffde7; padding: 15px; border-radius: 12px; border: 1px dashed #fbc02d; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="authSection" class="card">
+            <h3 id="authTitle">লগইন করুন</h3>
+            <div id="regFields" style="display:none;">
+                <input type="text" id="uName" placeholder="আপনার পুরো নাম">
+            </div>
+            <input type="number" id="uPhone" placeholder="মোবাইল নম্বর">
+            <input type="password" id="uPass" placeholder="পাসওয়ার্ড">
+            <button onclick="handleAuth()" id="mainAuthBtn" class="btn-primary">লগইন</button>
+            <p id="toggleText" onclick="toggleAuth()" style="text-align:center; color:var(--primary); cursor:pointer; font-size: 14px; font-weight: 500;">নতুন অ্যাকাউন্ট খুলুন</p>
+        </div>
+
+        <div id="mainSection" style="display:none;">
+            <div class="card">
+                <h4>👋 স্বাগতম, <span id="displayUserName" style="color:var(--primary);"></span></h4>
+                <div id="myOrders">
+                    <h5 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">📦 আপনার অর্ডারসমূহ:</h5>
+                    <div id="statusList" style="max-height: 200px; overflow-y: auto;">লোড হচ্ছে...</div>
+                </div>
+                <button onclick="logout()" class="btn-danger" style="padding: 8px 15px; width: auto; font-size: 13px; margin: 10px auto 0;">লগআউট</button>
+            </div>
+
+            <h3 style="text-align: left; margin-left: 5px;">🔥 সব পণ্যসমূহ</h3>
+            <div class="product-list" id="pList"></div>
+        </div>
+    </div>
+
+    <div id="checkoutModal">
+        <div style="max-width: 500px; margin: 0 auto;">
+            <h3>অর্ডার কনফার্ম করুন</h3>
+            <p id="selectedPName" style="font-weight: bold; color: var(--primary); font-size: 18px; text-align: center;"></p>
+            <div id="pDescBox" class="desc-view"></div>
+            <div id="colorArea"><p style="font-weight: bold; font-size: 14px;">🎨 কালার বেছে নিন:</p><div id="colorContainer" style="display: flex; justify-content: center;"></div></div>
+            <div id="sizeArea"><p style="font-weight: bold; font-size: 14px;">📏 সাইজ সিলেক্ট করুন:</p><div id="sizeContainer"></div></div>
+            <div class="card" style="padding: 10px; border: 1.5px solid #eee;">
+                <input type="text" id="orderName" placeholder="আপনার নাম">
+                <input type="number" id="orderPhone" placeholder="মোবাইল নম্বর">
+                <input type="text" id="orderDist" placeholder="জেলার নাম">
+                <input type="text" id="orderThana" placeholder="থানার নাম">
+                <textarea id="orderAddr" placeholder="বিস্তারিত ঠিকানা" rows="2"></textarea>
+            </div>
+            <button onclick="showPayment()" class="btn-success">পেমেন্ট ধাপে যান ➔</button>
+            <div id="payArea" style="display:none; margin-top:20px; border-top:2px solid #eee; padding-top:15px;">
+                <div class="pay-method"><div id="mBkash" onclick="selectMethod('bkash')">বিকাশ</div><div id="mNagad" onclick="selectMethod('nagad')">নগদ</div></div>
+                <div id="numDisplay" style="display:none; text-align: center;">
+                    <p id="payInstruction"></p>
+                    <b id="targetNum" style="font-size: 22px;"></b> 
+                    <button onclick="copyTargetNum()" style="width: auto; display: inline; padding: 5px;">Copy</button>
+                </div>
+                <input type="text" id="trxId" placeholder="Transaction ID (TrxID) দিন">
+                <button onclick="placeOrder()" class="btn-primary">অর্ডার কনফার্ম করুন ✅</button>
+            </div>
+            <button onclick="closeModal()" class="btn-danger" style="background: #eee; color: #333;">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAnMJhRl5klEm1dig1VtFy9BWuQCQ8GqOo",
+            authDomain: "topuproman-bc9d5.firebaseapp.com",
+            projectId: "topuproman-bc9d5",
+            storageBucket: "topuproman-bc9d5.firebasestorage.app",
+            messagingSenderId: "743545348321",
+            appId: "1:743545348321:web:4c6b9738464777675e17a0"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let isLoginMode = true;
+        let loggedInUser = JSON.parse(localStorage.getItem('shop_user'));
+        let productsData = [];
+        let selectedSize = "";
+        let selectedPayMethod = "";
+        let selectedColorImg = "";
+        let paymentData = { bkash: "", nagad: "" };
+
+        if(loggedInUser) loginSuccess();
+
+        function toggleAuth() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "লগইন করুন" : "নতুন অ্যাকাউন্ট";
+            document.getElementById('regFields').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('mainAuthBtn').innerText = isLoginMode ? "লগইন" : "সাইন-আপ করুন";
+        }
+
+        async function handleAuth() {
+            let phone = document.getElementById('uPhone').value.trim();
+            let pass = document.getElementById('uPass').value.trim();
+            if(!phone || !pass) return alert("সব ঘর পূরণ করুন!");
+            if(isLoginMode) {
+                let snap = await db.collection("users").where("phone", "==", phone).where("pass", "==", pass).get();
+                if(!snap.empty) {
+                    loggedInUser = snap.docs[0].data();
+                    localStorage.setItem('shop_user', JSON.stringify(loggedInUser));
+                    loginSuccess();
+                } else alert("ভুল নম্বর বা পাসওয়ার্ড!");
+            } else {
+                let name = document.getElementById('uName').value.trim();
+                if(!name) return alert("নাম লিখুন!");
+                await db.collection("users").add({name, phone, pass});
+                alert("রেজিস্ট্রেশন সফল! লগইন করুন।");
+                toggleAuth();
+            }
+        }
+
+        function loginSuccess() {
+            document.getElementById('authSection').style.display = "none";
+            document.getElementById('mainSection').style.display = "block";
+            document.getElementById('displayUserName').innerText = loggedInUser.name;
+            loadData();
+        }
+
+        function loadData() {
+            // পণ্য লোড
+            db.collection("products").onSnapshot(s => {
+                let h = ""; productsData = [];
+                s.forEach(doc => {
+                    let p = doc.data(); p.id = doc.id; productsData.push(p);
+                    h += `<div class="p-card">
+                        <img src="${p.image}" class="p-img">
+                        <p style="font-weight:600; font-size:14px; margin:8px 0;">${p.name}</p>
+                        <p><span class="old-price">৳${p.price}</span> <span class="price-tag">৳${p.lastPrice}</span></p>
+                        <button onclick="openOrder('${p.id}')" class="btn-primary" style="padding:8px; font-size:13px;">অর্ডার দিন</button>
+                    </div>`;
+                });
+                document.getElementById('pList').innerHTML = h;
+            });
+
+            // অর্ডার হিস্টোরি লোড - এখানে লগইন করা ইউজারের নম্বর দিয়ে ফিল্টার করা হয়েছে
+            db.collection("orders").where("phone", "==", String(loggedInUser.phone)).onSnapshot(s => {
+                let h = "";
+                if (s.empty) {
+                    h = "<p style='font-size:12px; color:#999; text-align:center;'>কোন অর্ডার পাওয়া যায়নি</p>";
+                } else {
+                    s.forEach(doc => {
+                        let o = doc.data();
+                        let clr = o.status === 'Pending' ? '#f39c12' : (o.status === 'Confirmed' ? '#27ae60' : '#e74c3c');
+                        h += `<div style="border-bottom:1px solid #eee; padding:10px 0; display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-size:12px;"><b>${o.product}</b><br><small style="color:#777">${o.date || ''}</small></div>
+                                <span class="status-tag" style="background:${clr}">${o.status}</span>
+                              </div>`;
+                    });
+                }
+                document.getElementById('statusList').innerHTML = h;
+            });
+
+            db.collection("settings").doc("payment").onSnapshot(doc => {
+                if(doc.exists) paymentData = doc.data();
+            });
+        }
+
+        function openOrder(id) {
+            let p = productsData.find(x => x.id === id);
+            currentPName = p.name;
+            selectedSize = ""; selectedColorImg = "";
+            document.getElementById('selectedPName').innerText = p.name;
+            document.getElementById('pDescBox').innerText = p.desc || "ডেসক্রিপশন নেই";
+            
+            let colorH = "";
+            let imgList = [p.image, p.color2, p.color3].filter(img => img);
+            imgList.forEach(img => {
+                colorH += `<img src="${img}" class="color-img-opt" onclick="selectColor(this, '${img}')">`;
+            });
+            document.getElementById('colorContainer').innerHTML = colorH;
+
+            let sizeH = "";
+            if(p.sizes){
+                let sArr = p.sizes.split(',');
+                sArr.forEach(s => {
+                    sizeH += `<button class="size-btn" onclick="selectSize(this, '${s.trim()}')">${s.trim()}</button>`;
+                });
+            }
+            document.getElementById('sizeContainer').innerHTML = sizeH || "<small>সাইজ নেই</small>";
+            document.getElementById('checkoutModal').style.display="block";
+        }
+
+        function selectColor(el, img) {
+            document.querySelectorAll('.color-img-opt').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            selectedColorImg = img;
+        }
+
+        function selectSize(btn, s) {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSize = s;
+        }
+
+        function selectMethod(m) {
+            selectedPayMethod = m;
+            document.getElementById('mBkash').classList.remove('active');
+            document.getElementById('mNagad').classList.remove('active');
+            document.getElementById('numDisplay').style.display = "block";
+            document.getElementById('m'+m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+            document.getElementById('payInstruction').innerText = m === 'bkash' ? "বিকাশে ১৩০ টাকা পাঠান:" : "নগদে ১৩০ টাকা পাঠান:";
+            document.getElementById('targetNum').innerText = paymentData[m];
+        }
+
+        function copyTargetNum() {
+            navigator.clipboard.writeText(document.getElementById('targetNum').innerText);
+            alert("নম্বর কপি হয়েছে!");
+        }
+
+        function showPayment() { 
+            if(!selectedColorImg) return alert("কালার সিলেক্ট করুন!");
+            document.getElementById('payArea').style.display="block"; 
+        }
+
+        function placeOrder() {
+            let trx = document.getElementById('trxId').value.trim();
+            if(!selectedPayMethod || !trx) return alert("পেমেন্ট তথ্য দিন!");
+            
+            db.collection("orders").add({
+                name: document.getElementById('orderName').value,
+                phone: String(loggedInUser.phone),
+                dist: document.getElementById('orderDist').value,
+                thana: document.getElementById('orderThana').value,
+                addr: document.getElementById('orderAddr').value,
+                product: currentPName,
+                size: selectedSize || "N/A",
+                colorImg: selectedColorImg,
+                method: selectedPayMethod,
+                trx: trx,
+                status: "Pending",
+                date: new Date().toLocaleString('bn-BD')
+            }).then(() => { 
+                alert("অর্ডার সফল! ✅"); 
+                closeModal();
+            });
+        }
+
+        function closeModal() { document.getElementById('checkoutModal').style.display="none"; }
+        function logout() { localStorage.clear(); location.reload(); }
+    </script>
+</body>
+</html>
