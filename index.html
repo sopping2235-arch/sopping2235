@@ -31,9 +31,12 @@
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         
-        /* সাপোর্ট বাটন স্টাইল */
         .btn-support { background: #e8f0fe; color: var(--primary); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
         .btn-support:hover { background: #d2e3fc; }
+
+        /* ব্যানার স্লাইডার স্টাইল */
+        .slider-container { width: 100%; height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #appBanner { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out; }
 
         .product-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .p-card { background: white; padding: 10px; border-radius: 12px; border: 1px solid #eee; text-align: center; transition: 0.3s; }
@@ -89,6 +92,10 @@
                 </div>
             </div>
 
+            <div id="bannerSection" class="slider-container" style="display: none;">
+                <img id="appBanner" src="">
+            </div>
+
             <h3 style="text-align: left; margin-left: 5px;">🔥 সব পণ্যসমূহ</h3>
             <div class="product-list" id="pList"></div>
         </div>
@@ -142,26 +149,58 @@
         let selectedPayMethod = "";
         let selectedColorImg = "";
         let paymentData = { bkash: "", nagad: "" };
-        let supportLink = "#"; // ডিফল্ট লিংক
+        let supportLink = "#";
+        
+        // স্লাইডার ভেরিয়েবল
+        let bannerLinks = [];
+        let currentIdx = 0;
+        let sliderInterval;
 
         if(loggedInUser) loginSuccess();
 
-        // সাপোর্ট লিংক লোড করার ফাংশন
         db.collection("settings").doc("support").onSnapshot(doc => {
-            if(doc.exists) {
-                supportLink = doc.data().link;
-            }
+            if(doc.exists) supportLink = doc.data().link;
         });
 
-        function openSupport() {
-            if(supportLink && supportLink !== "#") {
-                window.open(supportLink, '_blank');
-            } else {
-                alert("সাপোর্ট লিংক এখনো সেট করা হয়নি!");
+        // ব্যানার ডাটা লোড ও স্লাইডার ফাংশন
+        function loadBanners() {
+            db.collection("settings").doc("banners").onSnapshot(doc => {
+                if(doc.exists) {
+                    let d = doc.data();
+                    bannerLinks = [d.b1, d.b2, d.b3].filter(l => l && l.trim() !== "");
+                    
+                    if(bannerLinks.length > 0) {
+                        document.getElementById('bannerSection').style.display = "block";
+                        startSlider();
+                    } else {
+                        document.getElementById('bannerSection').style.display = "none";
+                    }
+                }
+            });
+        }
+
+        function startSlider() {
+            if(sliderInterval) clearInterval(sliderInterval);
+            const imgEl = document.getElementById('appBanner');
+            imgEl.src = bannerLinks[0];
+            
+            if(bannerLinks.length > 1) {
+                sliderInterval = setInterval(() => {
+                    currentIdx = (currentIdx + 1) % bannerLinks.length;
+                    imgEl.style.opacity = 0;
+                    setTimeout(() => {
+                        imgEl.src = bannerLinks[currentIdx];
+                        imgEl.style.opacity = 1;
+                    }, 500);
+                }, 3000); // ৩ সেকেন্ড পরপর পরিবর্তন
             }
         }
 
-        // বাকি সব ফাংশন আগের মতোই রাখা হয়েছে
+        function openSupport() {
+            if(supportLink && supportLink !== "#") window.open(supportLink, '_blank');
+            else alert("সাপোর্ট লিংক এখনো সেট করা হয়নি!");
+        }
+
         function toggleAuth() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').innerText = isLoginMode ? "লগইন করুন" : "নতুন অ্যাকাউন্ট";
@@ -194,6 +233,7 @@
             document.getElementById('mainSection').style.display = "block";
             document.getElementById('displayUserName').innerText = loggedInUser.name;
             loadData();
+            loadBanners(); // ব্যানার লোড শুরু
         }
 
         function loadData() {
@@ -213,9 +253,8 @@
 
             db.collection("orders").where("phone", "==", String(loggedInUser.phone)).onSnapshot(s => {
                 let h = "";
-                if (s.empty) {
-                    h = "<p style='font-size:12px; color:#999; text-align:center;'>কোন অর্ডার পাওয়া যায়নি</p>";
-                } else {
+                if (s.empty) h = "<p style='font-size:12px; color:#999; text-align:center;'>কোন অর্ডার পাওয়া যায়নি</p>";
+                else {
                     s.forEach(doc => {
                         let o = doc.data();
                         let clr = o.status === 'Pending' ? '#f39c12' : (o.status === 'Confirmed' ? '#27ae60' : '#e74c3c');
@@ -317,4 +356,5 @@
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
-</html>
+    </html>
+        .                    
