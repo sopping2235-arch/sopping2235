@@ -4,91 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>আমাদের শপ - প্রফেশনাল ইউজার প্যানেল</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --primary: #1a73e8;
+            --primary-hover: #1557b0;
             --secondary: #5f6368;
             --success: #34a853;
             --danger: #d93025;
             --warning: #fbbc04;
-            --bg: #f8f9fa;
+            --whatsapp: #25d366;
+            --bg: #f0f4f8; 
+            --card-bg: #ffffff;
         }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
         
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        body { 
+            font-family: 'Hind Siliguri', 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+        }
         
-        h3 { color: var(--primary); margin-top: 0; font-size: 20px; text-align: center; }
-        h4 { margin: 10px 0; font-size: 16px; }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px 15px; 
+        }
         
-        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 8px rgba(26,115,232,0.1); }
-        
-        button { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; display: block; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        
-        .btn-support { background: #e8f0fe; color: var(--primary); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
-        .btn-support:hover { background: #d2e3fc; }
+        .card { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(0,0,0,0.05); 
+            transition: transform 0.3s ease;
+        }
 
-        /* ব্যানার স্লাইডার স্টাইল */
-        .slider-container { width: 100%; height: 180px; border-radius: 12px; overflow: hidden; margin-bottom: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .auth-logo {
+            font-size: 50px;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: bounceIn 1s ease;
+        }
+        
+        h3 { color: var(--primary); margin-top: 0; font-size: 22px; text-align: center; font-weight: 700; }
+        h4 { margin: 10px 0; font-size: 18px; font-weight: 600; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            background-color: #f8f9fc;
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-size: 15px; 
+            font-family: inherit;
+            transition: all 0.3s ease; 
+        }
+        input:focus, textarea:focus { 
+            background-color: #fff;
+            border-color: var(--primary); 
+            outline: none; 
+            box-shadow: 0 0 0 4px rgba(26,115,232,0.15); 
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 12px 0; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-family: inherit;
+            transition: all 0.3s ease; 
+            display: block; 
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #0d47a1); color: white; }
+        .btn-success { background: linear-gradient(135deg, var(--success), #20853d); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #b32117); color: white; }
+        
+        .btn-support { 
+            background: #f1f3f4; 
+            color: #444; 
+            border: 1px solid #ddd; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-bottom: 10px; 
+        }
+
+        .btn-whatsapp { 
+            background: #e6f7ed; 
+            color: #1e9949; 
+            border: 1px solid var(--whatsapp); 
+            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; 
+            font-size: 15px; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; 
+        }
+
+        #toggleText {
+            display: inline-block;
+            text-align: center; 
+            color: var(--primary); 
+            cursor: pointer; 
+            font-size: 15px; 
+            font-weight: 600; 
+            margin-top: 20px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .slider-container { width: 100%; height: 200px; border-radius: 15px; overflow: hidden; margin-bottom: 20px; position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         #appBanner { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out; }
 
         .product-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .p-card { background: white; padding: 10px; border-radius: 12px; border: 1px solid #eee; text-align: center; transition: 0.3s; }
-        .p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; }
-        .price-tag { color: var(--danger); font-weight: bold; font-size: 18px; margin: 5px 0; display: block; }
-        .old-price { text-decoration: line-through; color: #888; font-size: 13px; margin-right: 5px; }
+        .p-card { 
+            background: white; 
+            padding: 12px; 
+            border-radius: 15px; 
+            border: 1px solid #edf2f7; 
+            text-align: center; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; }
+        .price-tag { color: var(--danger); font-weight: 700; font-size: 18px; margin: 5px 0; display: inline-block; }
+        .old-price { text-decoration: line-through; color: #94a3b8; font-size: 13px; margin-right: 5px; }
         
-        .status-tag { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: white; }
+        .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
+        .btn-del-order { background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;}
         
-        #checkoutModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; padding:15px; box-sizing:border-box; overflow-y:auto; z-index:1000; }
+        #checkoutModal { 
+            display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            padding: 20px; box-sizing:border-box; overflow-y:auto; z-index:1000; 
+        }
         
-        .desc-view { text-align: left; background: #f1f3f4; padding: 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; border-left: 4px solid var(--primary); margin: 10px 0; }
-        .size-btn { width: auto; padding: 8px 18px; margin: 4px; background: white; border: 1.5px solid #ddd; border-radius: 8px; cursor: pointer; }
-        .size-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        .pay-method { display: flex; gap: 12px; margin: 15px 0; }
-        .pay-method div { flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; font-weight: bold; text-align: center; background: #fafafa; }
-        .pay-method div.active { border-color: var(--primary); background: #e8f0fe; color: var(--primary); }
-        
-        .color-img-opt { width: 70px; height: 70px; object-fit: cover; border: 3px solid #eee; border-radius: 10px; cursor: pointer; margin: 5px; }
-        .color-img-opt.active { border-color: var(--primary); transform: scale(1.05); }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 500px;
+            margin: 20px auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        }
 
-        #numDisplay { background: #fffde7; padding: 15px; border-radius: 12px; border: 1px dashed #fbc02d; margin-top: 10px; }
+        .desc-view { text-align: left; background: #f8fafc; padding: 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid var(--primary); margin: 15px 0; color: #475569;}
+        .size-btn { width: auto; padding: 10px 20px; margin: 5px; background: #f1f5f9; border: 2px solid transparent; border-radius: 10px; cursor: pointer; font-weight: 600; color: #475569; }
+        .size-btn.active { background: #eff6ff; color: var(--primary); border-color: var(--primary); }
+        
+        .pay-method { display: flex; gap: 15px; margin: 20px 0; }
+        .pay-method div { flex: 1; padding: 15px; border: 2px solid #e2e8f0; border-radius: 15px; cursor: pointer; font-weight: bold; text-align: center; background: #f8fafc; transition: 0.3s; }
+        .pay-method div.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
+        
+        .color-img-opt { width: 75px; height: 75px; object-fit: cover; border: 3px solid transparent; border-radius: 12px; cursor: pointer; margin: 5px; transition: 0.3s; }
+        .color-img-opt.active { border-color: var(--primary); transform: scale(1.1); }
+
+        #numDisplay { background: #fffbeb; padding: 20px; border-radius: 15px; border: 2px dashed #f59e0b; margin-top: 15px; color: #b45309; }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes bounceIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="authSection" class="card">
+        <div id="authSection" class="card" style="margin-top: 5vh;">
+            <div class="auth-logo">🛍️</div>
             <h3 id="authTitle">লগইন করুন</h3>
+            <p style="text-align: center; color: var(--secondary); font-size: 14px; margin-bottom: 20px;">আমাদের শপে আপনাকে স্বাগতম</p>
+            
             <div id="regFields" style="display:none;">
                 <input type="text" id="uName" placeholder="আপনার পুরো নাম">
             </div>
             <input type="number" id="uPhone" placeholder="মোবাইল নম্বর">
             <input type="password" id="uPass" placeholder="পাসওয়ার্ড">
-            <button onclick="handleAuth()" id="mainAuthBtn" class="btn-primary">লগইন</button>
+            
+            <button onclick="handleAuth()" id="mainAuthBtn" class="btn-primary">লগইন করুন</button>
+            
+            <div style="text-align:center;">
+                <span id="toggleText" onclick="toggleAuth()">নতুন অ্যাকাউন্ট খুলুন</span>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             
             <button onclick="openSupport()" class="btn-support">💬 কাস্টমার সাপোর্ট</button>
-
-            <p id="toggleText" onclick="toggleAuth()" style="text-align:center; color:var(--primary); cursor:pointer; font-size: 14px; font-weight: 500;">নতুন অ্যাকাউন্ট খুলুন</p>
+            <button onclick="openWAChannel()" class="btn-whatsapp">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="22" alt="WA"> 
+                আমাদের apps ডাওলোড করে নিন WhatsApp চেনেল থেকে
+            </button>
         </div>
 
         <div id="mainSection" style="display:none;">
             <div class="card">
                 <h4>👋 স্বাগতম, <span id="displayUserName" style="color:var(--primary);"></span></h4>
-                <div id="myOrders">
-                    <h5 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">📦 আপনার অর্ডারসমূহ:</h5>
+                <div id="myOrders" style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px;">
+                    <h5 style="margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; color: #334155; font-size: 15px;">📦 আপনার অর্ডারসমূহ:</h5>
                     <div id="statusList" style="max-height: 200px; overflow-y: auto;">লোড হচ্ছে...</div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button onclick="logout()" class="btn-danger" style="padding: 8px 15px; width: auto; font-size: 13px; margin-top:10px;">লগআউট</button>
-                    <button onclick="openSupport()" class="btn-support" style="padding: 8px 15px; width: auto; font-size: 13px; margin-top:10px;">সাপোর্ট</button>
+                
+                <div style="display:flex; flex-direction: column; gap:8px; margin-top: 15px;">
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="logout()" class="btn-danger" style="padding: 12px 15px; width: auto; font-size: 14px; margin:0;">লগআউট</button>
+                        <button onclick="openSupport()" class="btn-support" style="padding: 12px 15px; width: auto; font-size: 14px; margin:0; flex:1;">💬 সাপোর্ট</button>
+                    </div>
+                    <button onclick="openWAChannel()" class="btn-whatsapp" style="padding: 12px; font-size: 14px; margin: 0;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="18" alt="WA"> 
+                        আমাদের apps ডাওলোড করে নিন WhatsApp চেনেল থেকে
+                    </button>
                 </div>
             </div>
 
@@ -96,37 +228,51 @@
                 <img id="appBanner" src="">
             </div>
 
-            <h3 style="text-align: left; margin-left: 5px;">🔥 সব পণ্যসমূহ</h3>
+            <h3 style="text-align: left; margin: 25px 0 15px 5px; color: #1e293b;">🔥 সব পণ্যসমূহ</h3>
             <div class="product-list" id="pList"></div>
         </div>
     </div>
 
     <div id="checkoutModal">
-        <div style="max-width: 500px; margin: 0 auto;">
+        <div class="modal-content">
             <h3>অর্ডার কনফার্ম করুন</h3>
-            <p id="selectedPName" style="font-weight: bold; color: var(--primary); font-size: 18px; text-align: center;"></p>
+            <p id="selectedPName" style="font-weight: 700; color: var(--primary); font-size: 18px; text-align: center; margin-bottom: 5px;"></p>
             <div id="pDescBox" class="desc-view"></div>
-            <div id="colorArea"><p style="font-weight: bold; font-size: 14px;">🎨 কালার বেছে নিন:</p><div id="colorContainer" style="display: flex; justify-content: center;"></div></div>
-            <div id="sizeArea"><p style="font-weight: bold; font-size: 14px;">📏 সাইজ সিলেক্ট করুন:</p><div id="sizeContainer"></div></div>
-            <div class="card" style="padding: 10px; border: 1.5px solid #eee;">
+            
+            <div id="colorArea" style="margin-top: 15px;">
+                <p style="font-weight: 600; font-size: 15px; color: #334155;">🎨 কালার বেছে নিন:</p>
+                <div id="colorContainer" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;"></div>
+            </div>
+            
+            <div id="sizeArea" style="margin-top: 15px;">
+                <p style="font-weight: 600; font-size: 15px; color: #334155;">📏 সাইজ সিলেক্ট করুন:</p>
+                <div id="sizeContainer" style="display: flex; flex-wrap: wrap;"></div>
+            </div>
+            
+            <div class="card" style="padding: 15px; border: 1.5px solid #e2e8f0; box-shadow: none; margin-top: 20px; background: #f8fafc;">
                 <input type="text" id="orderName" placeholder="আপনার নাম">
                 <input type="number" id="orderPhone" placeholder="মোবাইল নম্বর">
                 <input type="text" id="orderDist" placeholder="জেলার নাম">
                 <input type="text" id="orderThana" placeholder="থানার নাম">
-                <textarea id="orderAddr" placeholder="বিস্তারিত ঠিকানা" rows="2"></textarea>
+                <textarea id="orderAddr" placeholder="বিস্তারিত ঠিকানা" rows="3"></textarea>
             </div>
-            <button onclick="showPayment()" class="btn-success">পেমেন্ট ধাপে যান ➔</button>
-            <div id="payArea" style="display:none; margin-top:20px; border-top:2px solid #eee; padding-top:15px;">
-                <div class="pay-method"><div id="mBkash" onclick="selectMethod('bkash')">বিকাশ</div><div id="mNagad" onclick="selectMethod('nagad')">নগদ</div></div>
+            
+            <button onclick="showPayment()" id="goPayBtn" class="btn-success">পেমেন্ট ধাপে যান ➔</button>
+            
+            <div id="payArea" style="display:none; margin-top:25px; border-top:2px dashed #cbd5e1; padding-top:20px;">
+                <div class="pay-method">
+                    <div id="mBkash" onclick="selectMethod('bkash')">বিকাশ</div>
+                    <div id="mNagad" onclick="selectMethod('nagad')">নগদ</div>
+                </div>
                 <div id="numDisplay" style="display:none; text-align: center;">
                     <p id="payInstruction"></p>
-                    <b id="targetNum" style="font-size: 22px;"></b> 
-                    <button onclick="copyTargetNum()" style="width: auto; display: inline; padding: 5px;">Copy</button>
+                    <b id="targetNum" style="font-size: 24px;"></b> 
+                    <button onclick="copyTargetNum()" style="width: auto; padding: 8px 20px;">কপি করুন</button>
                 </div>
-                <input type="text" id="trxId" placeholder="Transaction ID (TrxID) দিন">
-                <button onclick="placeOrder()" class="btn-primary">অর্ডার কনফার্ম করুন ✅</button>
+                <input type="text" id="trxId" placeholder="Transaction ID দিন">
+                <button onclick="placeOrder()" id="finalOrderBtn" class="btn-primary">অর্ডার কনফার্ম করুন ✅</button>
             </div>
-            <button onclick="closeModal()" class="btn-danger" style="background: #eee; color: #333;">বন্ধ করুন</button>
+            <button onclick="closeModal()" class="btn-danger" style="background: #e2e8f0; color: #475569;">বন্ধ করুন</button>
         </div>
     </div>
 
@@ -144,37 +290,33 @@
 
         let isLoginMode = true;
         let loggedInUser = JSON.parse(localStorage.getItem('shop_user'));
-        let productsData = [];
+        let productsData =[];
         let selectedSize = "";
         let selectedPayMethod = "";
         let selectedColorImg = "";
         let paymentData = { bkash: "", nagad: "" };
         let supportLink = "#";
-        
-        // স্লাইডার ভেরিয়েবল
-        let bannerLinks = [];
+        let waChannelLink = "#";
+        let bannerLinks =[];
         let currentIdx = 0;
         let sliderInterval;
 
         if(loggedInUser) loginSuccess();
 
-        db.collection("settings").doc("support").onSnapshot(doc => {
-            if(doc.exists) supportLink = doc.data().link;
-        });
+        db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) supportLink = doc.data().link; });
+        db.collection("settings").doc("whatsapp").onSnapshot(doc => { if(doc.exists) waChannelLink = doc.data().link; });
 
-        // ব্যানার ডাটা লোড ও স্লাইডার ফাংশন
+        function openWAChannel() {
+            if(waChannelLink && waChannelLink !== "#") window.open(waChannelLink, '_blank');
+            else alert("লিংক সেট করা হয়নি!");
+        }
+
         function loadBanners() {
             db.collection("settings").doc("banners").onSnapshot(doc => {
                 if(doc.exists) {
                     let d = doc.data();
-                    bannerLinks = [d.b1, d.b2, d.b3].filter(l => l && l.trim() !== "");
-                    
-                    if(bannerLinks.length > 0) {
-                        document.getElementById('bannerSection').style.display = "block";
-                        startSlider();
-                    } else {
-                        document.getElementById('bannerSection').style.display = "none";
-                    }
+                    bannerLinks =[d.b1, d.b2, d.b3].filter(l => l && l.trim() !== "");
+                    if(bannerLinks.length > 0) { document.getElementById('bannerSection').style.display = "block"; startSlider(); }
                 }
             });
         }
@@ -183,49 +325,45 @@
             if(sliderInterval) clearInterval(sliderInterval);
             const imgEl = document.getElementById('appBanner');
             imgEl.src = bannerLinks[0];
-            
             if(bannerLinks.length > 1) {
                 sliderInterval = setInterval(() => {
                     currentIdx = (currentIdx + 1) % bannerLinks.length;
                     imgEl.style.opacity = 0;
-                    setTimeout(() => {
-                        imgEl.src = bannerLinks[currentIdx];
-                        imgEl.style.opacity = 1;
-                    }, 500);
-                }, 3000); // ৩ সেকেন্ড পরপর পরিবর্তন
+                    setTimeout(() => { imgEl.src = bannerLinks[currentIdx]; imgEl.style.opacity = 1; }, 500);
+                }, 3000);
             }
         }
 
-        function openSupport() {
-            if(supportLink && supportLink !== "#") window.open(supportLink, '_blank');
-            else alert("সাপোর্ট লিংক এখনো সেট করা হয়নি!");
-        }
+        function openSupport() { if(supportLink && supportLink !== "#") window.open(supportLink, '_blank'); }
 
         function toggleAuth() {
             isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "লগইন করুন" : "নতুন অ্যাকাউন্ট";
+            document.getElementById('authTitle').innerText = isLoginMode ? "লগইন করুন" : "নতুন অ্যাকাউন্ট তৈরি করুন";
             document.getElementById('regFields').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('mainAuthBtn').innerText = isLoginMode ? "লগইন" : "সাইন-আপ করুন";
+            document.getElementById('mainAuthBtn').innerText = isLoginMode ? "লগইন করুন" : "সাইন-আপ করুন";
         }
 
         async function handleAuth() {
+            let btn = document.getElementById('mainAuthBtn');
             let phone = document.getElementById('uPhone').value.trim();
             let pass = document.getElementById('uPass').value.trim();
             if(!phone || !pass) return alert("সব ঘর পূরণ করুন!");
-            if(isLoginMode) {
-                let snap = await db.collection("users").where("phone", "==", phone).where("pass", "==", pass).get();
-                if(!snap.empty) {
-                    loggedInUser = snap.docs[0].data();
-                    localStorage.setItem('shop_user', JSON.stringify(loggedInUser));
-                    loginSuccess();
-                } else alert("ভুল নম্বর বা পাসওয়ার্ড!");
-            } else {
-                let name = document.getElementById('uName').value.trim();
-                if(!name) return alert("নাম লিখুন!");
-                await db.collection("users").add({name, phone, pass});
-                alert("রেজিস্ট্রেশন সফল! লগইন করুন।");
-                toggleAuth();
-            }
+            btn.innerText = "লোডিং..."; btn.disabled = true;
+
+            try {
+                if(isLoginMode) {
+                    let snap = await db.collection("users").where("phone", "==", phone).where("pass", "==", pass).get();
+                    if(!snap.empty) {
+                        loggedInUser = snap.docs[0].data();
+                        localStorage.setItem('shop_user', JSON.stringify(loggedInUser));
+                        loginSuccess();
+                    } else { alert("ভুল তথ্য!"); btn.innerText = "লগইন করুন"; btn.disabled = false; }
+                } else {
+                    let name = document.getElementById('uName').value.trim();
+                    await db.collection("users").add({name, phone, pass});
+                    alert("সফল! লগইন করুন।"); btn.innerText = "লগইন করুন"; btn.disabled = false; toggleAuth();
+                }
+            } catch(e) { btn.disabled = false; btn.innerText = "Error"; }
         }
 
         function loginSuccess() {
@@ -233,80 +371,114 @@
             document.getElementById('mainSection').style.display = "block";
             document.getElementById('displayUserName').innerText = loggedInUser.name;
             loadData();
-            loadBanners(); // ব্যানার লোড শুরু
+            loadBanners();
+            loadOrders(); // ইউজার অর্ডার লোড
         }
 
         function loadData() {
             db.collection("products").onSnapshot(s => {
-                let h = ""; productsData = [];
+                let h = ""; productsData =[];
                 s.forEach(doc => {
                     let p = doc.data(); p.id = doc.id; productsData.push(p);
                     h += `<div class="p-card">
                         <img src="${p.image}" class="p-img">
-                        <p style="font-weight:600; font-size:14px; margin:8px 0;">${p.name}</p>
+                        <p style="font-weight:600;">${p.name}</p>
                         <p><span class="old-price">৳${p.price}</span> <span class="price-tag">৳${p.lastPrice}</span></p>
-                        <button onclick="openOrder('${p.id}')" class="btn-primary" style="padding:8px; font-size:13px;">অর্ডার দিন</button>
+                        <button onclick="openOrder('${p.id}')" class="btn-primary" style="padding:10px;">অর্ডার দিন</button>
                     </div>`;
                 });
                 document.getElementById('pList').innerHTML = h;
             });
+            db.collection("settings").doc("payment").onSnapshot(doc => { if(doc.exists) paymentData = doc.data(); });
+        }
 
-            db.collection("orders").where("phone", "==", String(loggedInUser.phone)).onSnapshot(s => {
-                let h = "";
-                if (s.empty) h = "<p style='font-size:12px; color:#999; text-align:center;'>কোন অর্ডার পাওয়া যায়নি</p>";
-                else {
-                    s.forEach(doc => {
-                        let o = doc.data();
-                        let clr = o.status === 'Pending' ? '#f39c12' : (o.status === 'Confirmed' ? '#27ae60' : '#e74c3c');
-                        h += `<div style="border-bottom:1px solid #eee; padding:10px 0; display:flex; justify-content:space-between; align-items:center;">
-                                <div style="font-size:12px;"><b>${o.product}</b><br><small style="color:#777">${o.date || ''}</small></div>
-                                <span class="status-tag" style="background:${clr}">${o.status}</span>
-                              </div>`;
-                    });
-                }
-                document.getElementById('statusList').innerHTML = h;
-            });
+        // --- অর্ডার সেভ এবং লোড লজিক (অ্যাডমিন ডিলিট করলেও থাকবে) ---
+        function saveOrderToLocal(order) {
+            let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
+            localOrders.unshift(order);
+            localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
+            renderOrders();
+        }
 
-            db.collection("settings").doc("payment").onSnapshot(doc => {
-                if(doc.exists) paymentData = doc.data();
+        function loadOrders() {
+            // প্রথমে সার্ভার থেকে নতুন আপডেটগুলো নিবে
+            db.collection("orders").where("phone", "==", String(loggedInUser.phone)).get().then(snap => {
+                let serverOrders = [];
+                snap.forEach(doc => {
+                    let data = doc.data();
+                    data.localId = doc.id;
+                    serverOrders.push(data);
+                });
+                
+                let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
+                
+                // সার্ভার আর লোকাল ডাটা মার্জ করা (যাতে স্ট্যাটাস আপডেট হয়)
+                serverOrders.forEach(so => {
+                    let index = localOrders.findIndex(lo => lo.trx === so.trx);
+                    if(index !== -1) localOrders[index].status = so.status;
+                    else localOrders.unshift(so);
+                });
+
+                localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
+                renderOrders();
             });
         }
+
+        function renderOrders() {
+            let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
+            let h = "";
+            if(localOrders.length === 0) h = "<p style='text-align:center;'>কোন অর্ডার নেই</p>";
+            else {
+                localOrders.forEach((o, index) => {
+                    let clr = o.status === 'Pending' ? '#f59e0b' : (o.status === 'Confirmed' ? '#10b981' : '#ef4444');
+                    h += `<div style="border-bottom:1px solid #eee; padding:10px 0; display:flex; justify-content:space-between;">
+                            <div style="font-size:13px;"><b>${o.product}</b><br><small>${o.date || ''}</small></div>
+                            <div style="text-align:right;">
+                                <span class="status-tag" style="background:${clr}">${o.status}</span><br>
+                                <button class="btn-del-order" onclick="deleteLocalOrder(${index})" style="margin-top:5px;">মুছে ফেলুন</button>
+                            </div>
+                          </div>`;
+                });
+            }
+            document.getElementById('statusList').innerHTML = h;
+        }
+
+        function deleteLocalOrder(index) {
+            if(confirm("অর্ডারটি কি হিস্টোরি থেকে মুছে ফেলবেন?")) {
+                let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
+                localOrders.splice(index, 1);
+                localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
+                renderOrders();
+            }
+        }
+        // -------------------------------------------------------
 
         function openOrder(id) {
             let p = productsData.find(x => x.id === id);
             currentPName = p.name;
-            selectedSize = ""; selectedColorImg = "";
             document.getElementById('selectedPName').innerText = p.name;
-            document.getElementById('pDescBox').innerText = p.desc || "ডেসক্রিপশন নেই";
-            
+            document.getElementById('pDescBox').innerText = p.desc || "No Description";
             let colorH = "";
-            let imgList = [p.image, p.color2, p.color3].filter(img => img);
-            imgList.forEach(img => {
+            [p.image, p.color2, p.color3].filter(img => img).forEach(img => {
                 colorH += `<img src="${img}" class="color-img-opt" onclick="selectColor(this, '${img}')">`;
             });
             document.getElementById('colorContainer').innerHTML = colorH;
-
             let sizeH = "";
-            if(p.sizes){
-                let sArr = p.sizes.split(',');
-                sArr.forEach(s => {
-                    sizeH += `<button class="size-btn" onclick="selectSize(this, '${s.trim()}')">${s.trim()}</button>`;
-                });
-            }
-            document.getElementById('sizeContainer').innerHTML = sizeH || "<small>সাইজ নেই</small>";
-            document.getElementById('checkoutModal').style.display="block";
+            if(p.sizes) p.sizes.split(',').forEach(s => {
+                sizeH += `<button class="size-btn" onclick="selectSize(this, '${s.trim()}')">${s.trim()}</button>`;
+            });
+            document.getElementById('sizeContainer').innerHTML = sizeH || "No Sizes";
+            document.getElementById('checkoutModal').style.display="flex";
         }
 
         function selectColor(el, img) {
             document.querySelectorAll('.color-img-opt').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            selectedColorImg = img;
+            el.classList.add('active'); selectedColorImg = img;
         }
 
         function selectSize(btn, s) {
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            selectedSize = s;
+            btn.classList.add('active'); selectedSize = s;
         }
 
         function selectMethod(m) {
@@ -315,26 +487,30 @@
             document.getElementById('mNagad').classList.remove('active');
             document.getElementById('numDisplay').style.display = "block";
             document.getElementById('m'+m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
-            document.getElementById('payInstruction').innerText = m === 'bkash' ? "বিকাশে ১৩০ টাকা পাঠান:" : "নগদে ১৩০ টাকা পাঠান:";
+            document.getElementById('payInstruction').innerText = "টাকা পাঠান:";
             document.getElementById('targetNum').innerText = paymentData[m];
         }
 
-        function copyTargetNum() {
-            navigator.clipboard.writeText(document.getElementById('targetNum').innerText);
-            alert("নম্বর কপি হয়েছে!");
-        }
+        function copyTargetNum() { navigator.clipboard.writeText(document.getElementById('targetNum').innerText); alert("কপি হয়েছে!"); }
 
         function showPayment() { 
             if(!selectedColorImg) return alert("কালার সিলেক্ট করুন!");
-            document.getElementById('payArea').style.display="block"; 
+            document.getElementById('goPayBtn').innerText = "লোডিং...";
+            setTimeout(() => { document.getElementById('payArea').style.display="block"; document.getElementById('goPayBtn').innerText = "পেমেন্ট ধাপে যান"; }, 500);
         }
 
         function placeOrder() {
+            let btn = document.getElementById('finalOrderBtn');
             let trx = document.getElementById('trxId').value.trim();
-            if(!selectedPayMethod || !trx) return alert("পেমেন্ট তথ্য দিন!");
+            let name = document.getElementById('orderName').value.trim();
+            let phone = document.getElementById('orderPhone').value.trim();
             
-            db.collection("orders").add({
-                name: document.getElementById('orderName').value,
+            if(!name || !phone || !trx) return alert("সব তথ্য দিন!");
+            
+            btn.innerText = "অর্ডার প্রসেস হচ্ছে..."; btn.disabled = true;
+
+            let orderData = {
+                name: name,
                 phone: String(loggedInUser.phone),
                 dist: document.getElementById('orderDist').value,
                 thana: document.getElementById('orderThana').value,
@@ -346,15 +522,18 @@
                 trx: trx,
                 status: "Pending",
                 date: new Date().toLocaleString('bn-BD')
-            }).then(() => { 
-                alert("অর্ডার সফল! ✅"); 
+            };
+
+            db.collection("orders").add(orderData).then(() => { 
+                saveOrderToLocal(orderData); // লোকাল স্টোরেজে সেভ
+                alert("অর্ডার সফল হয়েছে! ✅"); 
                 closeModal();
-            });
+                btn.innerText = "অর্ডার কনফার্ম করুন ✅"; btn.disabled = false;
+            }).catch(e => { btn.disabled = false; });
         }
 
         function closeModal() { document.getElementById('checkoutModal').style.display="none"; }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
-    </html>
-        .                    
+    </html>                    
