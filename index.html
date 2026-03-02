@@ -2,538 +2,1621 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>আমাদের শপ - প্রফেশনাল ইউজার প্যানেল</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>প্রিমিয়াম শপ - ইউজার প্যানেল</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --primary: #1a73e8;
-            --primary-hover: #1557b0;
-            --secondary: #5f6368;
-            --success: #34a853;
-            --danger: #d93025;
-            --warning: #fbbc04;
-            --whatsapp: #25d366;
-            --bg: #f0f4f8; 
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #60a5fa;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --whatsapp: #25d366;
+            --whatsapp-bg: #e6f7ed;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
         }
-        
-        body { 
-            font-family: 'Hind Siliguri', 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 0; 
-            color: #333; 
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 20px 15px; 
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
         }
-        
-        .card { 
-            background: var(--card-bg); 
-            padding: 25px; 
-            border-radius: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
-            border: 1px solid rgba(0,0,0,0.05); 
+
+        /* কার্ড স্টাইল */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            backdrop-filter: blur(8px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* নোটিফিকেশন ব্যাজ */
+        .notification-badge {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .notification-badge .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: var(--radius-full);
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* নোটিফিকেশন প্যানেল */
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-xl);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+        }
+
+        .notification-panel.active {
+            right: 0;
+        }
+
+        .notification-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .notification-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .notification-list {
+            padding: 16px;
+        }
+
+        .notification-item {
+            background: #f8fafc;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            animation: slideIn 0.3s ease;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .notification-item:hover {
+            transform: translateX(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+            border-color: var(--primary-light);
+            border-left-width: 4px;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            border-radius: var(--radius-full) 0 0 var(--radius-full);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mark-read {
+            color: var(--primary);
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            background: var(--primary-light);
+            color: white;
+            border-radius: var(--radius-full);
+            transition: all 0.2s ease;
+        }
+
+        .mark-read:hover {
+            background: var(--primary);
+        }
+
+        /* অথ সেকশন */
+        #authSection {
+            max-width: 480px;
+            margin: 40px auto;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #authTitle {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        #authTitle::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+            border-radius: var(--radius-full);
+        }
+
+        /* ফর্ম এলিমেন্ট */
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* বাটন স্টাইল */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        .btn-primary:active::after {
+            width: 200px;
+            height: 200px;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-support, .btn-whatsapp {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 12px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .btn-support {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+        }
+
+        .btn-support:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-whatsapp {
+            background: var(--whatsapp-bg);
+            color: #075e54;
+            border-color: var(--whatsapp);
+        }
+
+        .btn-whatsapp:hover {
+            background: #d9f1e1;
+            transform: translateY(-2px);
+        }
+
+        /* টগল টেক্সট */
+        #toggleText {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 16px;
+            text-align: center;
+            transition: color 0.2s ease;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        #toggleText:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ফরগট পাসওয়ার্ড লিংক */
+        .forgot-password {
+            text-align: right;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* রিসেট মেসেজ */
+        .reset-message {
+            background: var(--warning-light);
+            color: var(--warning);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            text-align: center;
+            border: 2px dashed #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        .reset-message a {
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .reset-message a:hover {
+            text-decoration: underline;
+        }
+
+        /* ইউজার হেডার */
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .welcome-text span {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-icon {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-icon.logout:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        /* প্রোফাইল সেকশন */
+        .profile-section {
+            margin: 16px 0;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .profile-info h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .password-change-form {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .password-change-form .btn-primary {
+            margin-top: 8px;
+        }
+
+        /* ব্যানার স্লাইডার */
+        .banner-slider {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .banner-slider img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
             transition: transform 0.3s ease;
         }
 
-        .auth-logo {
-            font-size: 50px;
+        .banner-slider img.active {
+            display: block;
+            animation: kenBurns 5s ease;
+        }
+
+        @keyframes kenBurns {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* প্রোডাক্ট গ্রিড */
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .p-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 12px;
+            border: 1px solid var(--border);
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.4s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .p-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-light);
+        }
+
+        .p-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
             margin-bottom: 10px;
-            animation: bounceIn 1s ease;
-        }
-        
-        h3 { color: var(--primary); margin-top: 0; font-size: 22px; text-align: center; font-weight: 700; }
-        h4 { margin: 10px 0; font-size: 18px; font-weight: 600; }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 10px 0; 
-            background-color: #f8f9fc;
-            border: 2px solid #e2e8f0; 
-            border-radius: 12px; 
-            box-sizing: border-box; 
-            font-size: 15px; 
-            font-family: inherit;
-            transition: all 0.3s ease; 
-        }
-        input:focus, textarea:focus { 
-            background-color: #fff;
-            border-color: var(--primary); 
-            outline: none; 
-            box-shadow: 0 0 0 4px rgba(26,115,232,0.15); 
-        }
-        
-        button { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 12px 0; 
-            border: none; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-family: inherit;
-            transition: all 0.3s ease; 
-            display: block; 
-        }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        button:active { transform: translateY(0); }
-        button:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #0d47a1); color: white; }
-        .btn-success { background: linear-gradient(135deg, var(--success), #20853d); color: white; }
-        .btn-danger { background: linear-gradient(135deg, var(--danger), #b32117); color: white; }
-        
-        .btn-support { 
-            background: #f1f3f4; 
-            color: #444; 
-            border: 1px solid #ddd; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-bottom: 10px; 
+            transition: transform 0.3s ease;
         }
 
-        .btn-whatsapp { 
-            background: #e6f7ed; 
-            color: #1e9949; 
-            border: 1px solid var(--whatsapp); 
-            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; 
-            font-size: 15px; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; 
+        .p-card:hover .p-img {
+            transform: scale(1.02);
         }
 
-        #toggleText {
-            display: inline-block;
-            text-align: center; 
-            color: var(--primary); 
-            cursor: pointer; 
-            font-size: 15px; 
-            font-weight: 600; 
-            margin-top: 20px;
-            padding: 8px 15px;
-            border-radius: 8px;
-            transition: 0.3s;
+        .p-card p {
+            font-weight: 600;
+            margin: 8px 0 4px;
+            font-size: 15px;
+            color: var(--text-primary);
         }
 
-        .slider-container { width: 100%; height: 200px; border-radius: 15px; overflow: hidden; margin-bottom: 20px; position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        #appBanner { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out; }
+        .p-card b {
+            color: var(--danger);
+            font-size: 18px;
+            display: block;
+            margin-top: 4px;
+        }
 
-        .product-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .p-card { 
-            background: white; 
-            padding: 12px; 
-            border-radius: 15px; 
-            border: 1px solid #edf2f7; 
-            text-align: center; 
-            transition: all 0.3s ease; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
-        .p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; }
-        .price-tag { color: var(--danger); font-weight: 700; font-size: 18px; margin: 5px 0; display: inline-block; }
-        .old-price { text-decoration: line-through; color: #94a3b8; font-size: 13px; margin-right: 5px; }
-        
-        .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
-        .btn-del-order { background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;}
-        
-        #checkoutModal { 
-            display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            padding: 20px; box-sizing:border-box; overflow-y:auto; z-index:1000; 
+
+        /* মডাল স্টাইল */
+        #checkoutModal, #historyModal, #profileModal, #resetModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 16px;
+            animation: modalFadeIn 0.3s ease;
         }
-        
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
         .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            max-width: 500px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--radius-xl);
+            max-width: 520px;
             margin: 20px auto;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: modalSlideUp 0.3s ease;
         }
 
-        .desc-view { text-align: left; background: #f8fafc; padding: 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid var(--primary); margin: 15px 0; color: #475569;}
-        .size-btn { width: auto; padding: 10px 20px; margin: 5px; background: #f1f5f9; border: 2px solid transparent; border-radius: 10px; cursor: pointer; font-weight: 600; color: #475569; }
-        .size-btn.active { background: #eff6ff; color: var(--primary); border-color: var(--primary); }
-        
-        .pay-method { display: flex; gap: 15px; margin: 20px 0; }
-        .pay-method div { flex: 1; padding: 15px; border: 2px solid #e2e8f0; border-radius: 15px; cursor: pointer; font-weight: bold; text-align: center; background: #f8fafc; transition: 0.3s; }
-        .pay-method div.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
-        
-        .color-img-opt { width: 75px; height: 75px; object-fit: cover; border: 3px solid transparent; border-radius: 12px; cursor: pointer; margin: 5px; transition: 0.3s; }
-        .color-img-opt.active { border-color: var(--primary); transform: scale(1.1); }
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        #numDisplay { background: #fffbeb; padding: 20px; border-radius: 15px; border: 2px dashed #f59e0b; margin-top: 15px; color: #b45309; }
+        /* ইমেজ গ্যালারি */
+        .main-img-box {
+            width: 100%;
+            height: 300px;
+            background: #f8fafc;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
+        }
 
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes bounceIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .main-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .thumb-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0 12px;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--border);
+        }
+
+        .thumb-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .thumb-container::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: var(--radius-full);
+        }
+
+        .thumb-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-full);
+        }
+
+        .thumb-item {
+            width: 65px;
+            height: 65px;
+            border-radius: var(--radius-md);
+            border: 3px solid transparent;
+            cursor: pointer;
+            object-fit: cover;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .thumb-item:hover {
+            transform: scale(1.05);
+        }
+
+        .thumb-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        /* বিল বক্স */
+        .bill-box {
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .bill-total {
+            border-top: 2px dashed var(--border);
+            padding-top: 12px;
+            margin-top: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--danger);
+        }
+
+        /* পেমেন্ট বক্স */
+        #payNumBox {
+            background: var(--warning-light);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 600;
+            color: var(--warning);
+            border: 2px dashed #f59e0b;
+            margin: 12px 0;
+            animation: pulse 2s infinite;
+        }
+
+        /* অর্ডার কার্ড */
+        .history-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .history-card:hover {
+            transform: translateX(4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        /* বিভক্তকারী */
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* রেস্পন্সিভ টুইক */
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .product-list {
+                gap: 12px;
+            }
+            
+            .p-img {
+                height: 140px;
+            }
+            
+            .main-img-box {
+                height: 250px;
+            }
+            
+            .thumb-item {
+                width: 55px;
+                height: 55px;
+            }
+
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn-icon {
+                flex: 1;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="authSection" class="card" style="margin-top: 5vh;">
-            <div class="auth-logo">🛍️</div>
-            <h3 id="authTitle">লগইন করুন</h3>
-            <p style="text-align: center; color: var(--secondary); font-size: 14px; margin-bottom: 20px;">আমাদের শপে আপনাকে স্বাগতম</p>
-            
-            <div id="regFields" style="display:none;">
-                <input type="text" id="uName" placeholder="আপনার পুরো নাম">
-            </div>
-            <input type="number" id="uPhone" placeholder="মোবাইল নম্বর">
+<div class="container">
+    <!-- অথ সেকশন -->
+    <div id="authSection" class="card">
+        <h3 id="authTitle">লগইন করুন</h3>
+        <div id="regFields" style="display:none;">
+            <input type="text" id="uName" placeholder="আপনার পুরো নাম">
+        </div>
+        <input type="number" id="uPhone" placeholder="মোবাইল নম্বর">
+        <div style="position: relative;">
             <input type="password" id="uPass" placeholder="পাসওয়ার্ড">
-            
-            <button onclick="handleAuth()" id="mainAuthBtn" class="btn-primary">লগইন করুন</button>
-            
-            <div style="text-align:center;">
-                <span id="toggleText" onclick="toggleAuth()">নতুন অ্যাকাউন্ট খুলুন</span>
-            </div>
+        </div>
+        
+        <!-- ফরগট পাসওয়ার্ড লিংক -->
+        <div class="forgot-password">
+            <a onclick="showResetModal()">পাসওয়ার্ড ভুলে গেছেন?</a>
+        </div>
+        
+        <button onclick="handleAuth()" id="mainAuthBtn" class="btn-primary">লগইন করুন</button>
+        <p id="toggleText" onclick="toggleAuth()">নতুন অ্যাকাউন্ট খুলুন</p>
+        <hr>
+        <a href="#" id="loginSupport" target="_blank" class="btn-support">💬 কাস্টমার সাপোর্ট</a>
+        <a href="#" id="loginWA" target="_blank" class="btn-whatsapp">📢 WhatsApp চ্যানেল জয়েন করুন</a>
+    </div>
 
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+    <!-- রিসেট পাসওয়ার্ড মডাল -->
+    <div id="resetModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--warning);">🔐 পাসওয়ার্ড ভুলে গেছেন?</h3>
             
-            <button onclick="openSupport()" class="btn-support">💬 কাস্টমার সাপোর্ট</button>
-            <button onclick="openWAChannel()" class="btn-whatsapp">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="22" alt="WA"> 
-                আমাদের apps ডাওলোড করে নিন WhatsApp চেনেল থেকে
-            </button>
+            <div class="reset-message">
+                <p style="margin-bottom: 12px;">পাসওয়ার্ড রিসেট করতে নিচের সাপোর্ট লিংকে যোগাযোগ করুন:</p>
+                <a href="#" id="resetSupportLink" target="_blank" style="display: inline-block; background: var(--primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); text-decoration: none; font-weight: 600;">📞 সাপোর্টে যোগাযোগ করুন</a>
+            </div>
+            
+            <p style="text-align: center; color: var(--text-muted); margin: 16px 0; font-size: 14px;">
+                অথবা WhatsApp চ্যানেলে মেসেজ দিন
+            </p>
+            
+            <a href="#" id="resetWALink" target="_blank" class="btn-whatsapp">📢 WhatsApp এ যোগাযোগ</a>
+            
+            <button onclick="closeResetModal()" class="btn-secondary" style="margin-top: 16px;">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <!-- মূল সেকশন -->
+    <div id="mainSection" style="display:none;">
+        <!-- নোটিফিকেশন প্যানেল -->
+        <div class="notification-panel" id="notificationPanel">
+            <div class="notification-header">
+                <h3><i class="fa-regular fa-bell"></i> নোটিফিকেশন</h3>
+                <button class="close-btn" onclick="toggleNotificationPanel()">✕</button>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                    <i class="fa-regular fa-bell-slash" style="font-size: 40px; margin-bottom: 10px;"></i><br>
+                    কোন নোটিফিকেশন নেই
+                </div>
+            </div>
         </div>
 
-        <div id="mainSection" style="display:none;">
-            <div class="card">
-                <h4>👋 স্বাগতম, <span id="displayUserName" style="color:var(--primary);"></span></h4>
-                <div id="myOrders" style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px;">
-                    <h5 style="margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; color: #334155; font-size: 15px;">📦 আপনার অর্ডারসমূহ:</h5>
-                    <div id="statusList" style="max-height: 200px; overflow-y: auto;">লোড হচ্ছে...</div>
+        <!-- ব্যানার স্লাইডার -->
+        <div class="banner-slider" id="bannerBox"></div>
+        
+        <!-- ইউজার হেডার -->
+        <div class="card">
+            <div class="user-header">
+                <div class="welcome-text">
+                    👋 স্বাগতম, <span id="displayUserName"></span>
                 </div>
-                
-                <div style="display:flex; flex-direction: column; gap:8px; margin-top: 15px;">
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="logout()" class="btn-danger" style="padding: 12px 15px; width: auto; font-size: 14px; margin:0;">লগআউট</button>
-                        <button onclick="openSupport()" class="btn-support" style="padding: 12px 15px; width: auto; font-size: 14px; margin:0; flex:1;">💬 সাপোর্ট</button>
+                <div class="action-buttons">
+                    <div class="notification-badge" onclick="toggleNotificationPanel()">
+                        <button class="btn-icon">
+                            <i class="fa-regular fa-bell"></i> নোটিফিকেশন
+                        </button>
+                        <span class="badge" id="notificationBadge" style="display:none;">0</span>
                     </div>
-                    <button onclick="openWAChannel()" class="btn-whatsapp" style="padding: 12px; font-size: 14px; margin: 0;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="18" alt="WA"> 
-                        আমাদের apps ডাওলোড করে নিন WhatsApp চেনেল থেকে
+                    <button onclick="openProfileModal()" class="btn-icon">
+                        <i class="fa-regular fa-user"></i> প্রোফাইল
+                    </button>
+                    <button onclick="openHistory()" class="btn-icon">
+                        <i class="fa-regular fa-clock"></i> হিস্টোরি
+                    </button>
+                    <button onclick="logout()" class="btn-icon logout">
+                        <i class="fa-solid fa-sign-out-alt"></i> লগআউট
                     </button>
                 </div>
             </div>
-
-            <div id="bannerSection" class="slider-container" style="display: none;">
-                <img id="appBanner" src="">
-            </div>
-
-            <h3 style="text-align: left; margin: 25px 0 15px 5px; color: #1e293b;">🔥 সব পণ্যসমূহ</h3>
-            <div class="product-list" id="pList"></div>
         </div>
-    </div>
 
-    <div id="checkoutModal">
-        <div class="modal-content">
-            <h3>অর্ডার কনফার্ম করুন</h3>
-            <p id="selectedPName" style="font-weight: 700; color: var(--primary); font-size: 18px; text-align: center; margin-bottom: 5px;"></p>
-            <div id="pDescBox" class="desc-view"></div>
-            
-            <div id="colorArea" style="margin-top: 15px;">
-                <p style="font-weight: 600; font-size: 15px; color: #334155;">🎨 কালার বেছে নিন:</p>
-                <div id="colorContainer" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;"></div>
-            </div>
-            
-            <div id="sizeArea" style="margin-top: 15px;">
-                <p style="font-weight: 600; font-size: 15px; color: #334155;">📏 সাইজ সিলেক্ট করুন:</p>
-                <div id="sizeContainer" style="display: flex; flex-wrap: wrap;"></div>
-            </div>
-            
-            <div class="card" style="padding: 15px; border: 1.5px solid #e2e8f0; box-shadow: none; margin-top: 20px; background: #f8fafc;">
-                <input type="text" id="orderName" placeholder="আপনার নাম">
-                <input type="number" id="orderPhone" placeholder="মোবাইল নম্বর">
-                <input type="text" id="orderDist" placeholder="জেলার নাম">
-                <input type="text" id="orderThana" placeholder="থানার নাম">
-                <textarea id="orderAddr" placeholder="বিস্তারিত ঠিকানা" rows="3"></textarea>
-            </div>
-            
-            <button onclick="showPayment()" id="goPayBtn" class="btn-success">পেমেন্ট ধাপে যান ➔</button>
-            
-            <div id="payArea" style="display:none; margin-top:25px; border-top:2px dashed #cbd5e1; padding-top:20px;">
-                <div class="pay-method">
-                    <div id="mBkash" onclick="selectMethod('bkash')">বিকাশ</div>
-                    <div id="mNagad" onclick="selectMethod('nagad')">নগদ</div>
+        <!-- প্রোডাক্ট লিস্ট -->
+        <div class="product-list" id="pList"></div>
+    </div>
+</div>
+
+<!-- প্রোফাইল মডাল -->
+<div id="profileModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; margin-bottom: 20px;">👤 আমার প্রোফাইল</h3>
+        
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar"></div>
+                <div class="profile-info">
+                    <h4 id="profileName"></h4>
+                    <p id="profilePhone"></p>
                 </div>
-                <div id="numDisplay" style="display:none; text-align: center;">
-                    <p id="payInstruction"></p>
-                    <b id="targetNum" style="font-size: 24px;"></b> 
-                    <button onclick="copyTargetNum()" style="width: auto; padding: 8px 20px;">কপি করুন</button>
-                </div>
-                <input type="text" id="trxId" placeholder="Transaction ID দিন">
-                <button onclick="placeOrder()" id="finalOrderBtn" class="btn-primary">অর্ডার কনফার্ম করুন ✅</button>
             </div>
-            <button onclick="closeModal()" class="btn-danger" style="background: #e2e8f0; color: #475569;">বন্ধ করুন</button>
         </div>
+
+        <div class="password-change-form">
+            <h4 style="margin-bottom: 12px;">🔑 পাসওয়ার্ড পরিবর্তন করুন</h4>
+            <input type="password" id="currentPass" placeholder="বর্তমান পাসওয়ার্ড">
+            <input type="password" id="newPass" placeholder="নতুন পাসওয়ার্ড">
+            <input type="password" id="confirmPass" placeholder="নতুন পাসওয়ার্ড আবার দিন">
+            <button onclick="changePassword()" class="btn-primary">পাসওয়ার্ড আপডেট করুন</button>
+        </div>
+
+        <button onclick="closeProfileModal()" class="btn-secondary" style="margin-top: 16px;">বন্ধ করুন</button>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAnMJhRl5klEm1dig1VtFy9BWuQCQ8GqOo",
-            authDomain: "topuproman-bc9d5.firebaseapp.com",
-            projectId: "topuproman-bc9d5",
-            storageBucket: "topuproman-bc9d5.firebasestorage.app",
-            messagingSenderId: "743545348321",
-            appId: "1:743545348321:web:4c6b9738464777675e17a0"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+<!-- চেকআউট মডাল -->
+<div id="checkoutModal">
+    <div class="modal-content">
+        <div class="main-img-box">
+            <img id="modalMainImg" src="">
+        </div>
+        <div id="modalThumbs" class="thumb-container"></div>
+        
+        <h3 id="pNameTitle" style="margin:10px 0; font-size:20px;"></h3>
+        
+        <div class="bill-box">
+            <div class="bill-row">
+                <span>📦 পণ্যের দাম:</span> 
+                <span id="textPrice">৳0</span>
+            </div>
+            <div class="bill-row">
+                <span>🚚 ডেলিভারি চার্জ:</span> 
+                <span id="textDelivery">৳0</span>
+            </div>
+            <div class="bill-row bill-total">
+                <span>💰 মোট প্রদেয়:</span> 
+                <span id="textTotal">৳0</span>
+            </div>
+        </div>
 
-        let isLoginMode = true;
-        let loggedInUser = JSON.parse(localStorage.getItem('shop_user'));
-        let productsData =[];
-        let selectedSize = "";
-        let selectedPayMethod = "";
-        let selectedColorImg = "";
-        let paymentData = { bkash: "", nagad: "" };
-        let supportLink = "#";
-        let waChannelLink = "#";
-        let bannerLinks =[];
-        let currentIdx = 0;
-        let sliderInterval;
+        <div id="sizeSection" style="margin-bottom:16px; display:none;">
+            <label style="font-size:15px; font-weight:600; color:var(--text-primary);">📏 সাইজ বেছে নিন:</label>
+            <select id="pSelectedSize"></select>
+        </div>
 
-        if(loggedInUser) loginSuccess();
+        <input type="text" id="orderName" placeholder="আপনার নাম *">
+        <input type="number" id="orderPhone" placeholder="মোবাইল নম্বর *">
+        <input type="text" id="orderDist" placeholder="জেলার নাম *">
+        <input type="text" id="orderThana" placeholder="থানার নাম">
+        <textarea id="orderAddr" placeholder="বিস্তারিত ঠিকানা" rows="2"></textarea>
+        
+        <select id="payMethod" onchange="showPayNum()">
+            <option value="">💳 পেমেন্ট মেথড বেছে নিন *</option>
+            <option value="bkash">বিকাশ (Bkash)</option>
+            <option value="nagad">নগদ (Nagad)</option>
+        </select>
+        
+        <div id="payNumBox"></div>
+        
+        <input type="text" id="trxId" placeholder="ট্রানজেকশন আইডি (TrxID) *">
+        
+        <button onclick="confirmOrder()" class="btn-primary" style="margin-top:16px;">
+            ✅ অর্ডার কনফার্ম করুন
+        </button>
+        <button onclick="closeModal()" style="width:100%; margin-top:12px; border:2px solid var(--border); background:white; padding:14px; border-radius:var(--radius-md); cursor:pointer; font-weight:500; color:var(--text-secondary); transition:all 0.2s ease;">
+            ✖️ বন্ধ করুন
+        </button>
+    </div>
+</div>
 
-        db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) supportLink = doc.data().link; });
-        db.collection("settings").doc("whatsapp").onSnapshot(doc => { if(doc.exists) waChannelLink = doc.data().link; });
+<!-- হিস্টোরি মডাল -->
+<div id="historyModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; margin-top:0; margin-bottom:20px; font-size:22px; color:var(--text-primary);">📋 আপনার অর্ডার সমূহ</h3>
+        <div id="historyContent" style="max-height: 400px; overflow-y: auto; padding-right: 8px;"></div>
+        <button onclick="document.getElementById('historyModal').style.display='none'" class="btn-primary" style="margin-top:20px;">বন্ধ করুন</button>
+    </div>
+</div>
 
-        function openWAChannel() {
-            if(waChannelLink && waChannelLink !== "#") window.open(waChannelLink, '_blank');
-            else alert("লিংক সেট করা হয়নি!");
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+    // Firebase কনফিগারেশন
+    const firebaseConfig = {
+        apiKey: "AIzaSyAnMJhRl5klEm1dig1VtFy9BWuQCQ8GqOo",
+        authDomain: "topuproman-bc9d5.firebaseapp.com",
+        projectId: "topuproman-bc9d5",
+        storageBucket: "topuproman-bc9d5.firebasestorage.app",
+        messagingSenderId: "743545348321",
+        appId: "1:743545348321:web:4c6b9738464777675e17a0"
+    };
+    
+    // Firebase ইনিশিয়ালাইজ
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // গ্লোবাল ভেরিয়েবল
+    let loggedUser = JSON.parse(localStorage.getItem('shop_user'));
+    let paymentData = {};
+    let currentProduct = null;
+    let notificationListener = null;
+
+    // লোড ইভেন্ট
+    window.addEventListener('load', function() {
+        loadSettings();
+        if(loggedUser) {
+            loginDone();
         }
+    });
 
-        function loadBanners() {
-            db.collection("settings").doc("banners").onSnapshot(doc => {
-                if(doc.exists) {
-                    let d = doc.data();
-                    bannerLinks =[d.b1, d.b2, d.b3].filter(l => l && l.trim() !== "");
-                    if(bannerLinks.length > 0) { document.getElementById('bannerSection').style.display = "block"; startSlider(); }
-                }
-            });
+    // অথ টগল
+    function toggleAuth() {
+        const isLogin = document.getElementById('authTitle').innerText === "লগইন করুন";
+        const regFields = document.getElementById('regFields');
+        const authTitle = document.getElementById('authTitle');
+        const mainAuthBtn = document.getElementById('mainAuthBtn');
+        
+        if(isLogin) {
+            regFields.style.display = "block";
+            authTitle.innerText = "নতুন অ্যাকাউন্ট";
+            mainAuthBtn.innerText = "অ্যাকাউন্ট খুলুন";
+        } else {
+            regFields.style.display = "none";
+            authTitle.innerText = "লগইন করুন";
+            mainAuthBtn.innerText = "লগইন করুন";
         }
+    }
 
-        function startSlider() {
-            if(sliderInterval) clearInterval(sliderInterval);
-            const imgEl = document.getElementById('appBanner');
-            imgEl.src = bannerLinks[0];
-            if(bannerLinks.length > 1) {
-                sliderInterval = setInterval(() => {
-                    currentIdx = (currentIdx + 1) % bannerLinks.length;
-                    imgEl.style.opacity = 0;
-                    setTimeout(() => { imgEl.src = bannerLinks[currentIdx]; imgEl.style.opacity = 1; }, 500);
-                }, 3000);
+    // রিসেট মডাল দেখান
+    function showResetModal() {
+        db.collection("settings").doc("support").get().then(doc => {
+            if(doc.exists && doc.data().link) {
+                document.getElementById('resetSupportLink').href = doc.data().link;
             }
+        });
+        
+        db.collection("settings").doc("whatsapp").get().then(doc => {
+            if(doc.exists && doc.data().link) {
+                document.getElementById('resetWALink').href = doc.data().link;
+            }
+        });
+        
+        document.getElementById('resetModal').style.display = 'block';
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetModal').style.display = 'none';
+    }
+
+    // অথ হ্যান্ডেল
+    async function handleAuth() {
+        const phone = document.getElementById('uPhone').value;
+        const pass = document.getElementById('uPass').value;
+        const isReg = document.getElementById('regFields').style.display === "block";
+
+        if(!phone || !pass) {
+            alert("📱 মোবাইল নম্বর এবং পাসওয়ার্ড দিন!");
+            return;
         }
 
-        function openSupport() { if(supportLink && supportLink !== "#") window.open(supportLink, '_blank'); }
-
-        function toggleAuth() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "লগইন করুন" : "নতুন অ্যাকাউন্ট তৈরি করুন";
-            document.getElementById('regFields').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('mainAuthBtn').innerText = isLoginMode ? "লগইন করুন" : "সাইন-আপ করুন";
-        }
-
-        async function handleAuth() {
-            let btn = document.getElementById('mainAuthBtn');
-            let phone = document.getElementById('uPhone').value.trim();
-            let pass = document.getElementById('uPass').value.trim();
-            if(!phone || !pass) return alert("সব ঘর পূরণ করুন!");
-            btn.innerText = "লোডিং..."; btn.disabled = true;
-
+        if(isReg) {
+            const name = document.getElementById('uName').value;
+            if(!name) {
+                alert("📝 আপনার নাম দিন!");
+                return;
+            }
+            
             try {
-                if(isLoginMode) {
-                    let snap = await db.collection("users").where("phone", "==", phone).where("pass", "==", pass).get();
-                    if(!snap.empty) {
-                        loggedInUser = snap.docs[0].data();
-                        localStorage.setItem('shop_user', JSON.stringify(loggedInUser));
-                        loginSuccess();
-                    } else { alert("ভুল তথ্য!"); btn.innerText = "লগইন করুন"; btn.disabled = false; }
-                } else {
-                    let name = document.getElementById('uName').value.trim();
-                    await db.collection("users").add({name, phone, pass});
-                    alert("সফল! লগইন করুন।"); btn.innerText = "লগইন করুন"; btn.disabled = false; toggleAuth();
+                const existingUser = await db.collection("users")
+                    .where("phone", "==", phone)
+                    .get();
+                
+                if(!existingUser.empty) {
+                    alert("❌ এই মোবাইল নম্বর ইতিমধ্যে নিবন্ধিত! লগইন করুন।");
+                    return;
                 }
-            } catch(e) { btn.disabled = false; btn.innerText = "Error"; }
-        }
 
-        function loginSuccess() {
-            document.getElementById('authSection').style.display = "none";
-            document.getElementById('mainSection').style.display = "block";
-            document.getElementById('displayUserName').innerText = loggedInUser.name;
-            loadData();
-            loadBanners();
-            loadOrders(); // ইউজার অর্ডার লোড
-        }
-
-        function loadData() {
-            db.collection("products").onSnapshot(s => {
-                let h = ""; productsData =[];
-                s.forEach(doc => {
-                    let p = doc.data(); p.id = doc.id; productsData.push(p);
-                    h += `<div class="p-card">
-                        <img src="${p.image}" class="p-img">
-                        <p style="font-weight:600;">${p.name}</p>
-                        <p><span class="old-price">৳${p.price}</span> <span class="price-tag">৳${p.lastPrice}</span></p>
-                        <button onclick="openOrder('${p.id}')" class="btn-primary" style="padding:10px;">অর্ডার দিন</button>
-                    </div>`;
-                });
-                document.getElementById('pList').innerHTML = h;
-            });
-            db.collection("settings").doc("payment").onSnapshot(doc => { if(doc.exists) paymentData = doc.data(); });
-        }
-
-        // --- অর্ডার সেভ এবং লোড লজিক (অ্যাডমিন ডিলিট করলেও থাকবে) ---
-        function saveOrderToLocal(order) {
-            let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
-            localOrders.unshift(order);
-            localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
-            renderOrders();
-        }
-
-        function loadOrders() {
-            // প্রথমে সার্ভার থেকে নতুন আপডেটগুলো নিবে
-            db.collection("orders").where("phone", "==", String(loggedInUser.phone)).get().then(snap => {
-                let serverOrders = [];
-                snap.forEach(doc => {
-                    let data = doc.data();
-                    data.localId = doc.id;
-                    serverOrders.push(data);
+                await db.collection("users").add({
+                    name: name,
+                    phone: phone,
+                    pass: pass,
+                    createdAt: new Date().toISOString()
                 });
                 
-                let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
+                alert("✅ অ্যাকাউন্ট তৈরি হয়েছে! এখন লগইন করুন।");
+                toggleAuth();
+            } catch(error) {
+                alert("❌ অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে: " + error.message);
+            }
+        } else {
+            try {
+                const snap = await db.collection("users")
+                    .where("phone", "==", phone)
+                    .where("pass", "==", pass)
+                    .get();
                 
-                // সার্ভার আর লোকাল ডাটা মার্জ করা (যাতে স্ট্যাটাস আপডেট হয়)
-                serverOrders.forEach(so => {
-                    let index = localOrders.findIndex(lo => lo.trx === so.trx);
-                    if(index !== -1) localOrders[index].status = so.status;
-                    else localOrders.unshift(so);
-                });
-
-                localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
-                renderOrders();
-            });
+                if(!snap.empty) {
+                    loggedUser = snap.docs[0].data();
+                    loggedUser.id = snap.docs[0].id;
+                    localStorage.setItem('shop_user', JSON.stringify(loggedUser));
+                    loginDone();
+                } else {
+                    alert("❌ ভুল মোবাইল নম্বর বা পাসওয়ার্ড!");
+                }
+            } catch(error) {
+                alert("❌ লগইন করতে সমস্যা হয়েছে: " + error.message);
+            }
         }
+    }
 
-        function renderOrders() {
-            let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
-            let h = "";
-            if(localOrders.length === 0) h = "<p style='text-align:center;'>কোন অর্ডার নেই</p>";
-            else {
-                localOrders.forEach((o, index) => {
-                    let clr = o.status === 'Pending' ? '#f59e0b' : (o.status === 'Confirmed' ? '#10b981' : '#ef4444');
-                    h += `<div style="border-bottom:1px solid #eee; padding:10px 0; display:flex; justify-content:space-between;">
-                            <div style="font-size:13px;"><b>${o.product}</b><br><small>${o.date || ''}</small></div>
-                            <div style="text-align:right;">
-                                <span class="status-tag" style="background:${clr}">${o.status}</span><br>
-                                <button class="btn-del-order" onclick="deleteLocalOrder(${index})" style="margin-top:5px;">মুছে ফেলুন</button>
+    // লগইন সম্পন্ন
+    function loginDone() {
+        document.getElementById('authSection').style.display = "none";
+        document.getElementById('mainSection').style.display = "block";
+        document.getElementById('displayUserName').innerText = loggedUser.name;
+        loadBanners();
+        loadProducts();
+        
+        // নোটিফিকেশন লোড করুন
+        loadNotifications();
+        
+        // ডিবাগ: কনসোলে ইউজার তথ্য দেখান
+        console.log("👤 লগইন করা ইউজার:", loggedUser);
+    }
+
+    // নোটিফিকেশন লোড - ফিক্স করা ভার্সন (টেস্ট কোড থেকে নেওয়া)
+    function loadNotifications() {
+        document.getElementById('notificationList').innerHTML = '<div style="text-align: center; padding: 20px;">⏳ লোড হচ্ছে...</div>';
+        
+        db.collection("notifications").get()
+            .then((snapshot) => {
+                console.log("📊 নোটিফিকেশন পাওয়া গেছে:", snapshot.size);
+                
+                if(snapshot.empty) {
+                    document.getElementById('notificationList').innerHTML = 
+                        '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">' +
+                        '<i class="fa-regular fa-bell-slash" style="font-size: 40px; margin-bottom: 10px;"></i><br>' +
+                        'কোন নোটিফিকেশন নেই</div>';
+                    return;
+                }
+                
+                let html = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    html += `
+                        <div class="notification-item">
+                            <div style="display:flex; align-items:flex-start; gap:10px;">
+                                <i class="fa-regular fa-bell" style="color: var(--primary); font-size: 20px; margin-top: 3px;"></i>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; margin-bottom:4px;">${data.title || 'নোটিফিকেশন'}</div>
+                                    <div style="color:var(--text-secondary); margin-bottom:8px;">${data.message || ''}</div>
+                                    <div class="notification-time">
+                                        <i class="fa-regular fa-clock"></i> ${new Date().toLocaleString('bn-BD')}
+                                    </div>
+                                </div>
                             </div>
-                          </div>`;
+                        </div>
+                    `;
                 });
-            }
-            document.getElementById('statusList').innerHTML = h;
-        }
-
-        function deleteLocalOrder(index) {
-            if(confirm("অর্ডারটি কি হিস্টোরি থেকে মুছে ফেলবেন?")) {
-                let localOrders = JSON.parse(localStorage.getItem('my_orders_history')) || [];
-                localOrders.splice(index, 1);
-                localStorage.setItem('my_orders_history', JSON.stringify(localOrders));
-                renderOrders();
-            }
-        }
-        // -------------------------------------------------------
-
-        function openOrder(id) {
-            let p = productsData.find(x => x.id === id);
-            currentPName = p.name;
-            document.getElementById('selectedPName').innerText = p.name;
-            document.getElementById('pDescBox').innerText = p.desc || "No Description";
-            let colorH = "";
-            [p.image, p.color2, p.color3].filter(img => img).forEach(img => {
-                colorH += `<img src="${img}" class="color-img-opt" onclick="selectColor(this, '${img}')">`;
+                
+                document.getElementById('notificationList').innerHTML = html;
+                
+                // ব্যাজ দেখান
+                const badge = document.getElementById('notificationBadge');
+                badge.style.display = 'inline-block';
+                badge.innerText = snapshot.size;
+            })
+            .catch((error) => {
+                console.error("❌ এরর:", error);
+                document.getElementById('notificationList').innerHTML = 
+                    '<div style="text-align: center; padding: 40px; color: red;">এরর: ' + error.message + '</div>';
             });
-            document.getElementById('colorContainer').innerHTML = colorH;
-            let sizeH = "";
-            if(p.sizes) p.sizes.split(',').forEach(s => {
-                sizeH += `<button class="size-btn" onclick="selectSize(this, '${s.trim()}')">${s.trim()}</button>`;
+    }
+
+    // নোটিফিকেশন প্যানেল টগল
+    function toggleNotificationPanel() {
+        const panel = document.getElementById('notificationPanel');
+        panel.classList.toggle('active');
+        
+        // প্যানেল খুললে নতুন করে লোড করুন
+        if(panel.classList.contains('active')) {
+            loadNotifications();
+        }
+    }
+
+    // প্রোফাইল মডাল
+    function openProfileModal() {
+        document.getElementById('profileModal').style.display = 'block';
+        document.getElementById('profileName').innerText = loggedUser.name;
+        document.getElementById('profilePhone').innerText = loggedUser.phone;
+        document.getElementById('profileAvatar').innerText = loggedUser.name.charAt(0).toUpperCase();
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').style.display = 'none';
+    }
+
+    // পাসওয়ার্ড পরিবর্তন
+    async function changePassword() {
+        const currentPass = document.getElementById('currentPass').value;
+        const newPass = document.getElementById('newPass').value;
+        const confirmPass = document.getElementById('confirmPass').value;
+
+        if(!currentPass || !newPass || !confirmPass) {
+            alert("❌ সব ফিল্ড পূরণ করুন!");
+            return;
+        }
+
+        if(newPass !== confirmPass) {
+            alert("❌ নতুন পাসওয়ার্ড মিলছে না!");
+            return;
+        }
+
+        if(newPass.length < 6) {
+            alert("❌ পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে!");
+            return;
+        }
+
+        if(currentPass !== loggedUser.pass) {
+            alert("❌ বর্তমান পাসওয়ার্ড ভুল!");
+            return;
+        }
+
+        try {
+            await db.collection("users").doc(loggedUser.id).update({
+                pass: newPass
             });
-            document.getElementById('sizeContainer').innerHTML = sizeH || "No Sizes";
-            document.getElementById('checkoutModal').style.display="flex";
+
+            loggedUser.pass = newPass;
+            localStorage.setItem('shop_user', JSON.stringify(loggedUser));
+            alert("✅ পাসওয়ার্ড পরিবর্তন হয়েছে!");
+            closeProfileModal();
+        } catch(error) {
+            alert("❌ সমস্যা: " + error.message);
         }
+    }
 
-        function selectColor(el, img) {
-            document.querySelectorAll('.color-img-opt').forEach(i => i.classList.remove('active'));
-            el.classList.add('active'); selectedColorImg = img;
+    // সেটিংস লোড
+    function loadSettings() {
+        db.collection("settings").doc("payment").onSnapshot(doc => {
+            if(doc.exists) paymentData = doc.data();
+        });
+        
+        db.collection("settings").doc("support").onSnapshot(doc => {
+            if(doc.exists && doc.data().link) {
+                document.getElementById('loginSupport').href = doc.data().link;
+            }
+        });
+        
+        db.collection("settings").doc("whatsapp").onSnapshot(doc => {
+            if(doc.exists && doc.data().link) {
+                document.getElementById('loginWA').href = doc.data().link;
+            }
+        });
+    }
+
+    // ব্যানার লোড
+    function loadBanners() {
+        db.collection("settings").doc("banners").onSnapshot(doc => {
+            if(doc.exists) {
+                const data = doc.data();
+                let bannerHTML = "";
+                if(data.b1) bannerHTML += `<img src="${data.b1}" class="active">`;
+                if(data.b2) bannerHTML += `<img src="${data.b2}">`;
+                if(data.b3) bannerHTML += `<img src="${data.b3}">`;
+                document.getElementById('bannerBox').innerHTML = bannerHTML;
+                startSlider();
+            }
+        });
+    }
+
+    function startSlider() {
+        const imgs = document.querySelectorAll('.banner-slider img');
+        let current = 0;
+        if(imgs.length > 1) {
+            setInterval(() => {
+                imgs[current].classList.remove('active');
+                current = (current + 1) % imgs.length;
+                imgs[current].classList.add('active');
+            }, 4000);
         }
+    }
 
-        function selectSize(btn, s) {
-            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active'); selectedSize = s;
-        }
+    // প্রোডাক্ট লোড
+    function loadProducts() {
+        db.collection("products").onSnapshot(snap => {
+            let html = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                p.id = doc.id;
+                html += `<div class="p-card" onclick="openOrder('${p.id}')">
+                    <img src="${p.image}" class="p-img" loading="lazy">
+                    <p>${p.name}</p>
+                    <b>৳${p.lastPrice}</b>
+                </div>`;
+            });
+            document.getElementById('pList').innerHTML = html;
+        });
+    }
 
-        function selectMethod(m) {
-            selectedPayMethod = m;
-            document.getElementById('mBkash').classList.remove('active');
-            document.getElementById('mNagad').classList.remove('active');
-            document.getElementById('numDisplay').style.display = "block";
-            document.getElementById('m'+m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
-            document.getElementById('payInstruction').innerText = "টাকা পাঠান:";
-            document.getElementById('targetNum').innerText = paymentData[m];
-        }
-
-        function copyTargetNum() { navigator.clipboard.writeText(document.getElementById('targetNum').innerText); alert("কপি হয়েছে!"); }
-
-        function showPayment() { 
-            if(!selectedColorImg) return alert("কালার সিলেক্ট করুন!");
-            document.getElementById('goPayBtn').innerText = "লোডিং...";
-            setTimeout(() => { document.getElementById('payArea').style.display="block"; document.getElementById('goPayBtn').innerText = "পেমেন্ট ধাপে যান"; }, 500);
-        }
-
-        function placeOrder() {
-            let btn = document.getElementById('finalOrderBtn');
-            let trx = document.getElementById('trxId').value.trim();
-            let name = document.getElementById('orderName').value.trim();
-            let phone = document.getElementById('orderPhone').value.trim();
+    // অর্ডার খুলুন
+    async function openOrder(id) {
+        try {
+            const doc = await db.collection("products").doc(id).get();
+            currentProduct = doc.data();
             
-            if(!name || !phone || !trx) return alert("সব তথ্য দিন!");
+            document.getElementById('pNameTitle').innerText = currentProduct.name;
+            document.getElementById('textPrice').innerText = "৳" + currentProduct.lastPrice;
+            document.getElementById('textDelivery').innerText = "৳" + (currentProduct.deliveryCharge || 0);
             
-            btn.innerText = "অর্ডার প্রসেস হচ্ছে..."; btn.disabled = true;
+            const total = (parseFloat(currentProduct.lastPrice) || 0) + (parseFloat(currentProduct.deliveryCharge) || 0);
+            document.getElementById('textTotal').innerText = "৳" + total;
+            
+            document.getElementById('modalMainImg').src = currentProduct.image;
+            
+            if(loggedUser) {
+                document.getElementById('orderName').value = loggedUser.name;
+                document.getElementById('orderPhone').value = loggedUser.phone;
+            }
 
-            let orderData = {
-                name: name,
-                phone: String(loggedInUser.phone),
-                dist: document.getElementById('orderDist').value,
-                thana: document.getElementById('orderThana').value,
-                addr: document.getElementById('orderAddr').value,
-                product: currentPName,
-                size: selectedSize || "N/A",
+            const imgArray = [
+                currentProduct.image,
+                currentProduct.img2,
+                currentProduct.img3,
+                currentProduct.img4,
+                currentProduct.img5,
+                currentProduct.img6,
+                currentProduct.img7,
+                currentProduct.img8,
+                currentProduct.img9,
+                currentProduct.img10
+            ];
+            
+            let thumbHTML = "";
+            imgArray.forEach((url, index) => {
+                if(url && url.trim() !== "") {
+                    thumbHTML += `<img src="${url}" class="thumb-item ${index === 0 ? 'active' : ''}" onclick="changePreview(this, '${url}')">`;
+                }
+            });
+            document.getElementById('modalThumbs').innerHTML = thumbHTML;
+            
+            if(currentProduct.sizes) {
+                document.getElementById('sizeSection').style.display = "block";
+                const sizeOptions = currentProduct.sizes.split(',').map(s => 
+                    `<option value="${s.trim()}">${s.trim()}</option>`
+                ).join('');
+                document.getElementById('pSelectedSize').innerHTML = sizeOptions;
+            } else {
+                document.getElementById('sizeSection').style.display = "none";
+            }
+
+            document.getElementById('payMethod').value = "";
+            document.getElementById('payNumBox').style.display = "none";
+            document.getElementById('payNumBox').innerHTML = "";
+            document.getElementById('trxId').value = "";
+            
+            document.getElementById('checkoutModal').style.display = "block";
+        } catch(error) {
+            alert("❌ প্রোডাক্ট লোড করতে সমস্যা হয়েছে: " + error.message);
+        }
+    }
+
+    function changePreview(el, url) {
+        document.getElementById('modalMainImg').src = url;
+        document.querySelectorAll('.thumb-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function showPayNum() {
+        const method = document.getElementById('payMethod').value;
+        const payBox = document.getElementById('payNumBox');
+        
+        if(method && paymentData[method]) {
+            payBox.style.display = "block";
+            payBox.innerHTML = `
+                <div>📱 ${method.toUpperCase()} নম্বর: ${paymentData[method]}</div>
+                <div style="font-size:13px;">⚠️ শুধুমাত্র ডেলিভারি চার্জ ৳${currentProduct.deliveryCharge || 0} পাঠান</div>
+            `;
+        } else {
+            payBox.style.display = "none";
+        }
+    }
+
+    async function confirmOrder() {
+        const trx = document.getElementById('trxId').value.trim();
+        const dist = document.getElementById('orderDist').value.trim();
+        const oName = document.getElementById('orderName').value.trim();
+        const oPhone = document.getElementById('orderPhone').value.trim();
+        const pMethod = document.getElementById('payMethod').value;
+        const thana = document.getElementById('orderThana').value.trim();
+        const addr = document.getElementById('orderAddr').value.trim();
+        const selectedColorImg = document.getElementById('modalMainImg').src;
+        
+        if(!oName || !oPhone || !dist || !pMethod || !trx) {
+            alert("❌ সব তথ্য দিন!");
+            return;
+        }
+
+        try {
+            await db.collection("orders").add({
+                name: oName,
+                phone: oPhone,
+                dist: dist,
+                thana: thana,
+                addr: addr,
+                product: currentProduct.name,
+                size: document.getElementById('pSelectedSize')?.value || "N/A",
                 colorImg: selectedColorImg,
-                method: selectedPayMethod,
+                price: currentProduct.lastPrice,
+                deliveryCharge: currentProduct.deliveryCharge || 0,
+                payMethod: pMethod,
                 trx: trx,
                 status: "Pending",
-                date: new Date().toLocaleString('bn-BD')
-            };
-
-            db.collection("orders").add(orderData).then(() => { 
-                saveOrderToLocal(orderData); // লোকাল স্টোরেজে সেভ
-                alert("অর্ডার সফল হয়েছে! ✅"); 
-                closeModal();
-                btn.innerText = "অর্ডার কনফার্ম করুন ✅"; btn.disabled = false;
-            }).catch(e => { btn.disabled = false; });
+                date: new Date().toLocaleString(),
+                userId: loggedUser?.id
+            });
+            alert("✅ অর্ডার সফল!");
+            closeModal();
+        } catch(error) {
+            alert("❌ সমস্যা: " + error.message);
         }
+    }
 
-        function closeModal() { document.getElementById('checkoutModal').style.display="none"; }
-        function logout() { localStorage.clear(); location.reload(); }
-    </script>
+    // ================ আপডেট করা হিস্টোরি ফাংশন ================
+    async function openHistory() {
+        const modal = document.getElementById('historyModal');
+        const content = document.getElementById('historyContent');
+        modal.style.display = 'block';
+        content.innerHTML = '<div style="text-align:center; padding:20px;">⏳ লোড হচ্ছে...</div>';
+        
+        try {
+            // টাইমস্ট্যাম্প অনুযায়ী সাজানো (নতুন আগে)
+            const snap = await db.collection("orders")
+                .where("phone", "==", loggedUser.phone)
+                .orderBy("timestamp", "desc")
+                .get();
+            
+            let html = "";
+            if(snap.empty) {
+                html = "<p style='text-align:center; padding: 20px;'>📭 আপনি এখনো কোনো অর্ডার করেননি।</p>";
+            } else {
+                snap.forEach(doc => {
+                    const ord = doc.data();
+                    const total = (parseFloat(ord.price) || 0) + (parseFloat(ord.deliveryCharge) || 0);
+                    
+                    // তারিখ ফরম্যাট ঠিক করা
+                    let displayDate = ord.date || 'তারিখ নেই';
+                    if (ord.timestamp && ord.timestamp.toDate) {
+                        try {
+                            displayDate = ord.timestamp.toDate().toLocaleString('bn-BD', {
+                                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            });
+                        } catch (e) {
+                            displayDate = ord.date || 'তারিখ নেই';
+                        }
+                    }
+                    
+                    html += `
+                        <div class="history-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <b style="font-size: 16px;">${ord.product || 'পণ্য'}</b>
+                                <span class="status-badge ${ord.status === 'Pending' ? 'pending' : 'success'}">${ord.status || 'Pending'}</span>
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">
+                                <div>💰 মোট: ৳${total}</div>
+                                <div>💳 পদ্ধতি: ${ord.payMethod || 'N/A'} (Trx: ${ord.trx || 'N/A'})</div>
+                                <div>📅 ${displayDate}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            content.innerHTML = html;
+        } catch(error) {
+            console.error("হিস্টোরি লোড করতে সমস্যা:", error);
+            // যদি টাইমস্ট্যাম্প না থাকে, তাহলে সিম্পল কোয়েরি চেষ্টা করুন
+            try {
+                const fallbackSnap = await db.collection("orders")
+                    .where("phone", "==", loggedUser.phone)
+                    .get();
+                
+                if (fallbackSnap.empty) {
+                    content.innerHTML = "<p style='text-align:center; padding: 20px;'>📭 আপনি এখনো কোনো অর্ডার করেননি।</p>";
+                } else {
+                    let fallbackHtml = "";
+                    fallbackSnap.forEach(doc => {
+                        const ord = doc.data();
+                        const total = (parseFloat(ord.price) || 0) + (parseFloat(ord.deliveryCharge) || 0);
+                        fallbackHtml += `
+                            <div class="history-card">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <b>${ord.product || 'পণ্য'}</b>
+                                    <span class="status-badge ${ord.status === 'Pending' ? 'pending' : 'success'}">${ord.status || 'Pending'}</span>
+                                </div>
+                                <div>মোট: ৳${total}</div>
+                                <div>তারিখ: ${ord.date || 'N/A'}</div>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = fallbackHtml;
+                }
+            } catch (fallbackError) {
+                console.error("ফলব্যাক হিস্টোরি এরর:", fallbackError);
+                content.innerHTML = '<div style="text-align:center; padding:40px; color: red;">❌ হিস্টোরি লোড করতে সমস্যা হয়েছে।</div>';
+            }
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('checkoutModal').style.display = "none";
+    }
+
+    function logout() {
+        if(notificationListener) notificationListener();
+        localStorage.removeItem('shop_user');
+        location.reload();
+    }
+</script>
 </body>
-    </html>                    
+                    </html>
