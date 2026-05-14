@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+)<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -108,6 +108,30 @@
         .support-btn i { font-size: 28px; }
         .support-btn span { font-size: 12px; }
         .support-btn:active { transform: scale(0.95); }
+        .download-section {
+            margin-top: 20px;
+            border: 2px solid red;
+            border-radius: 16px;
+            padding: 12px;
+            background: rgba(255,255,255,0.7);
+        }
+        .download-section h4 {
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .download-buttons .support-btn {
+            width: auto;
+            padding: 10px 20px;
+            flex-direction: row;
+            gap: 8px;
+        }
         .user-phone-display {
             background: linear-gradient(135deg, #dc2626, #b91c1c);
             color: white;
@@ -393,6 +417,7 @@
             .p-img { height: 130px; }
             .support-btn { width: 75px; }
             .support-btn i { font-size: 24px; }
+            .download-buttons .support-btn { width: auto; padding: 8px 16px; }
         }
         .toast {
             visibility: hidden;
@@ -416,7 +441,6 @@
             85% { opacity: 1; transform: translateX(-50%) translateY(0); }
             100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
         }
-        /* অতিরিক্ত স্টাইল – প্রোডাক্ট বিবরণের জন্য */
         .product-description {
             margin: 12px 0;
             padding: 10px;
@@ -451,6 +475,19 @@
             <a href="#" id="whatsappLink" target="_blank" class="support-btn whatsapp"><i class="fab fa-whatsapp"></i><span>হোয়াটসঅ্যাপ</span></a>
             <a href="#" id="telegramLink" target="_blank" class="support-btn telegram"><i class="fab fa-telegram-plane"></i><span>টেলিগ্রাম</span></a>
             <a href="#" id="helplineLink" class="support-btn helpline"><i class="fas fa-phone-alt"></i><span>হেল্পলাইন</span></a>
+        </div>
+
+        <!-- নতুন ডাউনলোড সেকশন (লাল দাগের ভিতর) -->
+        <div class="download-section">
+            <h4><i class="fas fa-download"></i>আমাদের রিয়েল Apps ডাউনলোড করুন</h4>
+            <div class="download-buttons">
+                <a href="https://your-server.com/accent.apk" id="accentDownloadLink" target="_blank" class="support-btn">
+                    <i class="fas fa-mobile-alt"></i> <span>অ্যাক্সিয়েন্ট ডাউনলোড করুন</span>
+                </a>
+                <a href="#" id="appsDownloadLink" target="_blank" class="support-btn">
+                    <i class="fas fa-store"></i> <span>Apps ডাউনলোড করুন</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -559,9 +596,26 @@
         } catch(e) { console.error(e); }
     }
 
+    // নতুন ফাংশন: Apps ডাউনলোড লিংক লোড করা
+    async function loadAppDownloadLink() {
+        try {
+            const doc = await db.collection("settings").doc("appDownload").get();
+            const appsLink = document.getElementById('appsDownloadLink');
+            if(doc.exists && doc.data().url) {
+                appsLink.href = doc.data().url;
+            } else {
+                appsLink.href = "#";
+                appsLink.style.opacity = "0.6";
+                appsLink.style.cursor = "not-allowed";
+                appsLink.onclick = (e) => { e.preventDefault(); showToast("অ্যাডমিন লিংক সেট করেননি"); };
+            }
+        } catch(e) { console.error(e); }
+    }
+
     window.addEventListener('load', async () => {
         showLoader("অ্যাপ চালু হচ্ছে...");
         await loadSupportLinks();
+        await loadAppDownloadLink();   // Apps ডাউনলোড লিংক লোড
         await loadPaymentGateways();
         if(loggedUser) await loginDone();
         hideLoader();
@@ -685,7 +739,6 @@
         } catch(e) { console.error(e); }
     }
 
-    // আপডেটেড অর্ডার ফাংশন – পণ্যের বিবরণ, রঙ ও সাইজ নির্বাচন ঠিকানা ফর্মের আগে দেখাবে
     async function openOrder(productId) {
         showLoader("পণ্যের তথ্য আনতে হচ্ছে...");
         try {
@@ -694,7 +747,6 @@
             currentProduct = doc.data();
             currentProduct.id = productId;
             
-            // রঙের ছবি সংগ্রহ
             const colors = [];
             if(currentProduct.img1) colors.push(currentProduct.img1);
             if(currentProduct.img2) colors.push(currentProduct.img2);
@@ -704,13 +756,11 @@
             if(currentProduct.image && !colors.includes(currentProduct.image)) colors.push(currentProduct.image);
             selectedColorImg = colors[0] || currentProduct.img1 || currentProduct.image || 'https://via.placeholder.com/250';
             
-            // পণ্যের বিবরণ (HTML ফরম্যাট সাপোর্ট)
             let descriptionHtml = '';
             if(currentProduct.description) {
                 descriptionHtml = `<div class="product-description"><i class="fas fa-align-left"></i> <strong>পণ্যের বিবরণ:</strong><br>${currentProduct.description}</div>`;
             }
             
-            // প্রিভিউ HTML তৈরি (ছবি, নাম, দাম, বিবরণ)
             let previewHtml = `
                 <div class="main-preview" id="mainPreview">
                     <img src="${selectedColorImg}" id="mainColorImage" onerror="this.src='https://via.placeholder.com/250'">
@@ -722,7 +772,6 @@
                 ${descriptionHtml}
             `;
             
-            // রঙ নির্বাচক (যদি একাধিক ছবি থাকে)
             if(colors.length > 1) {
                 let colorHtml = `<div class="color-selector">
                     <label><i class="fas fa-palette"></i> রঙ নির্বাচন করুন:</label>
@@ -736,7 +785,6 @@
                 previewHtml += colorHtml;
             }
             
-            // সাইজ নির্বাচক
             if(currentProduct.sizes) {
                 let sizes = currentProduct.sizes.split(',');
                 let sizeHtml = `<div class="color-selector">
@@ -751,7 +799,6 @@
             
             document.getElementById('productPreview').innerHTML = previewHtml;
             
-            // গ্লোবাল ফাংশন রাখা (রঙ ও সাইজ পরিবর্তনের জন্য)
             window.selectColor = function(url, element) {
                 document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
                 element.classList.add('active');
@@ -764,11 +811,9 @@
                 selectedSize = size;
             };
             
-            // নাম ও ফোন প্রি-ফিল
             document.getElementById('orderName').value = loggedUser.name;
             document.getElementById('orderPhone').value = loggedUser.phone;
             
-            // ডেলিভারি চার্জ ও বিলের তথ্য আপডেট
             const productPrice = currentProduct.lastPrice || currentProduct.price || 0;
             const deliveryCharge = currentProduct.deliveryCharge || 0;
             document.getElementById('deliveryChargeBox').innerHTML = `🚚 ডেলিভারি চার্জ: ৳${deliveryCharge}`;
@@ -776,7 +821,6 @@
             document.getElementById('step2Delivery').innerHTML = `৳${deliveryCharge}`;
             document.getElementById('step2Total').innerHTML = `৳${productPrice + deliveryCharge}`;
             
-            // মডাল দেখান ও প্রথম ধাপে যান
             document.getElementById('orderModal').style.display = 'block';
             goToStep1();
             hideLoader();
@@ -914,5 +958,6 @@
     function logout() { localStorage.removeItem('shop_user'); location.reload(); }
 </script>
 </body>
-    </html>                                        
+        </html>        
+            
                     
