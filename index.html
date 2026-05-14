@@ -1,4 +1,4 @@
-)<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -70,7 +70,7 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.2s ease;
-        }
+        
         .btn-danger {
             background: linear-gradient(135deg, var(--danger), #dc2626);
             color: white;
@@ -594,7 +594,7 @@
                 document.getElementById('resetSupportLink').href = 'https://wa.me/880000000000';
             }
         } catch(e) { console.error(e); }
-    }
+    
 
     // নতুন ফাংশন: Apps ডাউনলোড লিংক লোড করা
     async function loadAppDownloadLink() {
@@ -610,7 +610,7 @@
                 appsLink.onclick = (e) => { e.preventDefault(); showToast("অ্যাডমিন লিংক সেট করেননি"); };
             }
         } catch(e) { console.error(e); }
-    }
+    
 
     window.addEventListener('load', async () => {
         showLoader("অ্যাপ চালু হচ্ছে...");
@@ -619,7 +619,7 @@
         await loadPaymentGateways();
         if(loggedUser) await loginDone();
         hideLoader();
-    });
+    );
 
     async function loadPaymentGateways() {
         try {
@@ -716,7 +716,7 @@
                 window.goToBanner = function(index) { imgs.forEach((img,i) => { img.classList.remove('active'); dots[i].classList.remove('active'); }); imgs[index].classList.add('active'); dots[index].classList.add('active'); currentIndex = index; };
             }
         } catch(e) { console.error(e); }
-    }
+    
 
     async function loadProducts() {
         try {
@@ -737,7 +737,7 @@
             });
             document.getElementById('pList').innerHTML = html;
         } catch(e) { console.error(e); }
-    }
+    
 
     async function openOrder(productId) {
         showLoader("পণ্যের তথ্য আনতে হচ্ছে...");
